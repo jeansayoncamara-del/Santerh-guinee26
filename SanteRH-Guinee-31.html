@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>SantéRH Guinée</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1E7C3C">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SantéRH">
+<style>
+:root{
+  --vert:#1E7C3C;
+  --vert-fonce:#155A2C;
+  --bleu:#1E5AA8;
+  --rouge:#CE1126;
+  --jaune:#FCD116;
+  --gris-fond:#F4F6F5;
+  --gris-bord:#E1E6E4;
+  --texte:#1B2721;
+  --texte-clair:#6B7A72;
+  --blanc:#FFFFFF;
+  --radius:14px;
+  --shadow:0 4px 18px rgba(20,40,30,0.08);
+}
+body.dark{
+  --gris-fond:#121815;
+  --gris-bord:#2A332E;
+  --texte:#EDF2EF;
+  --texte-clair:#9AA79F;
+  --blanc:#1B2320;
+  --shadow:0 4px 18px rgba(0,0,0,0.35);
+}
+body.dark{ background:var(--gris-fond); }
+body.dark input, body.dark select, body.dark textarea{ background:#222B26; color:var(--texte); border-color:var(--gris-bord); }
+body.dark .att-btn{ background:#222B26; color:var(--texte-clair); }
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+  background:var(--gris-fond);
+  color:var(--texte);
+  -webkit-tap-highlight-color:transparent;
+}
+img{max-width:100%;}
+button{font-family:inherit; cursor:pointer;}
+input,select{font-family:inherit;}
+
+/* ---------- SPLASH / LOGIN ---------- */
+#screen-login{
+  min-height:100vh;
+  background:linear-gradient(180deg,#EAF3FB 0%, #F7FBF9 55%, var(--gris-fond) 100%);
+  display:flex; flex-direction:column; align-items:center;
+  padding:32px 20px 24px;
+}
+.brand-mark{
+  width:96px; height:96px; border-radius:50%;
+  background:var(--blanc);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--shadow);
+  margin-top:18px;
+  font-size:40px;
+}
+.brand-title{
+  margin-top:16px; text-align:center;
+  font-size:30px; font-weight:800; color:var(--vert);
+  letter-spacing:-0.5px;
+}
+.brand-title span{color:var(--bleu);}
+.brand-sub{
+  color:var(--rouge); font-weight:700; font-size:20px; margin-top:-4px;
+}
+.brand-tag{
+  margin-top:10px; text-align:center; color:var(--texte-clair);
+  font-size:14px; max-width:320px; line-height:1.4;
+}
+.login-card{
+  width:100%; max-width:380px;
+  background:var(--blanc);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:24px 22px 20px;
+  margin-top:26px;
+}
+.login-card h2{
+  font-size:17px; display:flex; align-items:center; gap:8px;
+  color:var(--texte); margin-bottom:16px;
+}
+.field{
+  display:flex; align-items:center; gap:8px;
+  border:1.5px solid var(--gris-bord); border-radius:10px;
+  padding:11px 12px; margin-bottom:12px; background:#FBFCFB;
+}
+.field input, .field select{
+  border:none; outline:none; background:transparent; flex:1; font-size:15px; color:var(--texte);
+}
+.field .icon{font-size:16px; opacity:0.6;}
+.field .toggle-eye{cursor:pointer; opacity:0.5; font-size:14px;}
+.row-between{display:flex; justify-content:space-between; align-items:center; font-size:13px; margin:6px 0 16px;}
+.row-between label{display:flex; align-items:center; gap:6px; color:var(--texte-clair);}
+.link{color:var(--vert); text-decoration:none; font-weight:600;}
+.btn-primary{
+  width:100%; background:var(--vert); color:#fff; border:none;
+  border-radius:10px; padding:13px; font-size:15px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-primary:active{background:var(--vert-fonce);}
+.divider-or{
+  text-align:center; color:var(--texte-clair); font-size:12px; margin:14px 0;
+  position:relative;
+}
+.divider-or::before,.divider-or::after{
+  content:""; position:absolute; top:50%; width:40%; height:1px; background:var(--gris-bord);
+}
+.divider-or::before{left:0;} .divider-or::after{right:0;}
+.btn-outline{
+  width:100%; background:#fff; color:var(--vert); border:1.5px solid var(--vert);
+  border-radius:10px; padding:12px; font-size:14px; font-weight:700;
+}
+.version-tag{margin-top:14px; color:var(--texte-clair); font-size:12px; text-align:center;}
+.login-error{
+  background:#FDECEC; color:var(--rouge); border-radius:8px; padding:9px 12px;
+  font-size:13px; margin-bottom:10px; display:none;
+}
+.footer-flag{
+  margin-top:auto; width:100%; height:10px; display:flex;
+}
+.footer-flag div{flex:1;}
+
+/* ---------- APP SHELL ---------- */
+#app{display:none; min-height:100vh; flex-direction:column;}
+.topbar{
+  background:var(--blanc); border-bottom:1px solid var(--gris-bord);
+  padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:20;
+}
+.topbar .tb-left{display:flex; align-items:center; gap:10px;}
+.tb-logo{width:34px; height:34px; border-radius:50%; background:var(--gris-fond); display:flex; align-items:center; justify-content:center; font-size:16px;}
+.tb-title{font-weight:800; color:var(--vert); font-size:16px;}
+.tb-title span{color:var(--bleu);}
+.tb-right{display:flex; align-items:center; gap:10px;}
+.sync-dot{width:9px; height:9px; border-radius:50%; background:#3CB371;}
+.sync-dot.off{background:#C0392B;}
+.btn-icon{
+  background:var(--gris-fond); border:none; border-radius:8px; padding:7px 9px; font-size:15px;
+}
+.centre-select{
+  border:1px solid var(--gris-bord); border-radius:8px; padding:7px 8px; font-size:12.5px; max-width:150px; background:#fff;
+}
+.content{padding:14px 14px 90px; flex:1;}
+.section-title{font-size:18px; font-weight:800; margin-bottom:4px;}
+.section-sub{color:var(--texte-clair); font-size:13px; margin-bottom:14px;}
+
+/* Dashboard cards */
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;}
+.stat-card{
+  background:#fff; border-radius:var(--radius); padding:14px; box-shadow:var(--shadow);
+}
+.stat-card .num{font-size:24px; font-weight:800;}
+.stat-card .lbl{font-size:12px; color:var(--texte-clair); margin-top:2px;}
+.stat-card.v{border-left:4px solid var(--vert);}
+.stat-card.b{border-left:4px solid var(--bleu);}
+.stat-card.r{border-left:4px solid var(--rouge);}
+.stat-card.j{border-left:4px solid #D4A017;}
+
+.card{background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; margin-bottom:12px;}
+.card h3{font-size:14.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;}
+
+.list-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 0; border-bottom:1px solid #F0F2F1;
+}
+.list-item:last-child{border-bottom:none;}
+.avatar{
+  width:38px; height:38px; border-radius:50%; background:var(--gris-fond);
+  display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--vert); font-size:14px; flex-shrink:0;
+}
+.li-main{flex:1; min-width:0;}
+.li-name{font-weight:700; font-size:14px;}
+.li-sub{font-size:12px; color:var(--texte-clair); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.badge{padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap;}
+.badge.present{background:#E3F6E9; color:#1E7C3C;}
+.badge.absent{background:#FDECEC; color:#CE1126;}
+.badge.retard{background:#FFF6DE; color:#B8860B;}
+.badge.approuve{background:#E3F6E9; color:#1E7C3C;}
+.badge.attente{background:#FFF6DE; color:#B8860B;}
+.badge.refuse{background:#FDECEC; color:#CE1126;}
+.badge.actif{background:#E7F0FB; color:#1E5AA8;}
+.badge.mission{background:#E7F0FB; color:#1E5AA8;}
+.badge.conge{background:#F3E8FD; color:#7B2FBE;}
+
+/* FAB + bottom nav */
+.fab{
+  position:fixed; right:18px; bottom:82px; width:54px; height:54px; border-radius:50%;
+  background:var(--vert); color:#fff; border:none; font-size:26px; box-shadow:0 6px 16px rgba(30,124,60,0.4);
+  z-index:30;
+}
+.bottom-nav{
+  position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--gris-bord);
+  display:flex; z-index:25; padding:6px 4px 8px;
+}
+.nav-btn{
+  flex:1; border:none; background:none; display:flex; flex-direction:column; align-items:center; gap:2px;
+  font-size:10.5px; color:var(--texte-clair); padding:6px 2px; border-radius:10px;
+}
+.nav-btn .ic{font-size:19px;}
+.nav-btn.active{color:var(--vert); font-weight:700;}
+
+/* Search / filter bar */
+.searchbar{display:flex; gap:8px; margin-bottom:12px;}
+.searchbar input{flex:1; border:1px solid var(--gris-bord); border-radius:10px; padding:10px 12px; font-size:14px; background:#fff;}
+.chip-row{display:flex; gap:6px; overflow-x:auto; margin-bottom:12px; padding-bottom:2px;}
+.chip{
+  border:1px solid var(--gris-bord); background:#fff; border-radius:20px; padding:6px 12px;
+  font-size:12.5px; white-space:nowrap; color:var(--texte-clair);
+}
+.chip.active{background:var(--vert); color:#fff; border-color:var(--vert);}
+
+/* Modal */
+.modal-overlay{
+  display:none; position:fixed; inset:0; background:rgba(15,25,20,0.45); z-index:50;
+  align-items:flex-end; justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal-sheet{
+  background:#fff; width:100%; max-width:480px; border-radius:20px 20px 0 0;
+  max-height:88vh; overflow-y:auto; padding:20px 18px 26px;
+}
+.modal-sheet h2{font-size:17px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;}
+.modal-sheet .close-x{background:var(--gris-fond); border:none; border-radius:50%; width:30px; height:30px; font-size:15px;}
+.form-group{margin-bottom:12px;}
+.form-group label{font-size:12.5px; color:var(--texte-clair); display:block; margin-bottom:5px; font-weight:600;}
+.form-group input, .form-group select, .form-group textarea{
+  width:100%; border:1.5px solid var(--gris-bord); border-radius:9px; padding:10px 11px; font-size:14.5px; outline:none;
+}
+.form-group textarea{resize:vertical; min-height:60px;}
+.form-row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.modal-actions{display:flex; gap:10px; margin-top:16px;}
+.btn-secondary{flex:1; background:var(--gris-fond); border:none; border-radius:10px; padding:12px; font-weight:700; color:var(--texte);}
+.btn-danger{background:#FDECEC; color:var(--rouge); border:none; border-radius:10px; padding:12px; font-weight:700;}
+
+.empty-state{text-align:center; padding:36px 12px; color:var(--texte-clair);}
+.empty-state .ic{font-size:38px; margin-bottom:8px;}
+
+.toast{
+  position:fixed; bottom:96px; left:50%; transform:translateX(-50%);
+  background:#20302A; color:#fff; padding:11px 18px; border-radius:30px; font-size:13.5px;
+  z-index:60; display:none; box-shadow:0 6px 16px rgba(0,0,0,0.25);
+}
+
+.att-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-top:8px;}
+.att-btn{border:1.5px solid var(--gris-bord); background:#fff; border-radius:9px; padding:8px 4px; font-size:11.5px; font-weight:700; color:var(--texte-clair);}
+.att-btn.sel-present{background:#E3F6E9; border-color:#1E7C3C; color:#1E7C3C;}
+.att-btn.sel-absent{background:#FDECEC; border-color:#CE1126; color:#CE1126;}
+.att-btn.sel-retard{background:#FFF6DE; border-color:#B8860B; color:#B8860B;}
+
+.print-only{display:none;}
+@media print{
+  body > *:not(#printArea){display:none !important;}
+  #printArea{display:block !important; position:static;}
+}
+#printArea{display:none;}
+
+.scan-btn{
+  width:100%; background:var(--bleu); color:#fff; border:none; border-radius:12px;
+  padding:14px; font-size:15px; font-weight:700; margin-bottom:14px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.scan-video-wrap{
+  position:relative; border-radius:14px; overflow:hidden; background:#000; margin-bottom:12px;
+}
+.scan-video-wrap video{width:100%; display:block;}
+.scan-frame{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:62%; aspect-ratio:1/1; border:3px solid #3CB371; border-radius:16px;
+  box-shadow:0 0 0 999px rgba(0,0,0,0.35);
+}
+.scan-status{
+  text-align:center; padding:10px; border-radius:10px; font-size:14px; font-weight:600;
+  background:#F0F2F1; color:var(--texte-clair); margin-bottom:10px;
+}
+.scan-status.ok{background:#E3F6E9; color:#1E7C3C;}
+.scan-status.err{background:#FDECEC; color:#CE1126;}
+.badge-qr-box{
+  display:flex; flex-direction:column; align-items:center; padding:14px;
+  border:1.5px dashed var(--gris-bord); border-radius:14px; margin-bottom:14px;
+}
+.badge-qr-box .bq-name{font-weight:800; font-size:16px; margin-top:10px;}
+.badge-qr-box .bq-sub{font-size:12.5px; color:var(--texte-clair);}
+.gps-tag{font-size:10.5px; color:var(--bleu); display:inline-flex; align-items:center; gap:3px; margin-left:6px;}
+.horaires-row{display:flex; gap:14px; margin-top:6px; font-size:11.5px; font-weight:600;}
+.horaires-row .h-arr{color:#1E7C3C;}
+.horaires-row .h-dep{color:#B8860B;}
+.horaires-row .h-empty{color:var(--texte-clair); font-weight:500;}
+.qr-status{display:inline-block; margin-top:6px; font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:8px;}
+.qr-status.st-present{background:#E3F6E9; color:#1E7C3C;}
+.qr-status.st-retard{background:#FFF6DE; color:#B8860B;}
+.qr-status.st-absent{background:#FDECEC; color:#CE1126;}
+.qr-status.st-attente{background:#F2F2F2; color:var(--texte-clair);}
+#refreshBtn.spin{animation:spin360 .7s linear infinite;}
+@keyframes spin360{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.cat-badge{display:inline-block; margin-top:5px; font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:7px;}
+.cat-badge.cat-fonctionnaire{background:#E5EEFB; color:#1D4E8F;}
+.cat-badge.cat-contractuel{background:#EFEAF9; color:#6A3FA0;}
+.cat-badge.cat-volontaire{background:#FCE9F0; color:#B02A6E;}
+.rank-item{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #F0F2F1;}
+.rank-item:last-child{border-bottom:none;}
+.rank-num{
+  width:30px; height:30px; border-radius:50%; background:var(--gris-fond); color:var(--texte-clair);
+  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0;
+}
+.rank-num.gold{background:#FFF3CD; color:#B8860B;}
+.rank-num.silver{background:#E8EAED; color:#5F6368;}
+.rank-num.bronze{background:#F5DCC8; color:#A0522D;}
+.rank-score{font-weight:800; font-size:16px; color:var(--vert);}
+.mini-link{color:var(--bleu); font-size:12.5px; font-weight:700; background:none; border:none; padding:0;}
+.act-row{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #F0F2F1; font-size:13px;}
+.act-row:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="screen-login">
+  <div class="brand-mark">🏥</div>
+  <div class="brand-title">Santé<span>RH</span></div>
+  <div class="brand-sub">Guinée</div>
+  <div class="brand-tag">Une gestion moderne et efficace du personnel de santé, à l'échelle du district.</div>
+
+  <div class="login-card">
+    <h2>👤 Se connecter</h2>
+    <div class="login-error" id="loginError"></div>
+    <div class="field">
+      <span class="icon">👤</span>
+      <input type="text" id="loginUser" placeholder="Nom d'utilisateur" autocomplete="username">
+    </div>
+    <div class="field">
+      <span class="icon">🔒</span>
+      <input type="password" id="loginPass" placeholder="Mot de passe / PIN" autocomplete="current-password">
+      <span class="toggle-eye" onclick="togglePass()">👁️</span>
+    </div>
+    <div class="row-between">
+      <label><input type="checkbox" id="rememberMe" checked> Se souvenir de moi</label>
+      <a href="#" class="link" onclick="alert('Contactez l\'administrateur district pour réinitialiser votre mot de passe.'); return false;">Mot de passe oublié ?</a>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">➡️ SE CONNECTER</button>
+    <div class="divider-or">OU</div>
+    <button class="btn-outline" onclick="doOfflineLogin()">📶 UTILISER HORS LIGNE</button>
+    <div class="version-tag">Version 1.0.0</div>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo">🏥</div>
+      <div>
+        <div class="tb-title">Santé<span>RH</span></div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <select id="centreSelect" class="centre-select" onchange="onCentreChange()"></select>
+      <span class="sync-dot" id="syncDot" title="Synchronisé"></span>
+      <button class="btn-icon" onclick="openGlobalSearch()" title="Recherche globale">🔍</button>
+      <button class="btn-icon" id="refreshBtn" onclick="refreshApp()" title="Actualiser">🔄</button>
+      <button class="btn-icon" onclick="openHelp()" title="Aide sur cet écran">❓</button>
+      <button class="btn-icon" onclick="lockApp()" title="Verrouiller entre postes">🔒</button>
+      <button class="btn-icon" onclick="openOutils()" title="Outils">⚙️</button>
+      <button class="btn-icon" onclick="logout()">⎋</button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <!-- injected per view -->
+  </div>
+
+  <button class="fab" id="fabBtn" onclick="handleFab()">＋</button>
+
+  <div class="bottom-nav">
+    <button class="nav-btn active" data-view="dashboard" onclick="showView('dashboard')"><span class="ic">🏠</span>Accueil</button>
+    <button class="nav-btn" data-view="personnel" onclick="showView('personnel')"><span class="ic">👥</span>Personnel</button>
+    <button class="nav-btn" data-view="presences" onclick="showView('presences')"><span class="ic">🕒</span>Présences</button>
+    <button class="nav-btn" data-view="conges" onclick="showView('conges')"><span class="ic">📅</span>Congés</button>
+    <button class="nav-btn" data-view="rapports" onclick="showView('rapports')"><span class="ic">📊</span>Rapports</button>
+    <button class="nav-btn" data-view="merite" onclick="showView('merite')"><span class="ic">🏅</span>Mérite</button>
+  </div>
+</div>
+
+<div id="screen-lock" style="display:none; position:fixed; inset:0; background:#0B3D2E; color:#fff; z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+  <div style="font-size:44px; margin-bottom:6px;">🔒</div>
+  <div style="font-size:18px; font-weight:800; margin-bottom:2px;">Écran verrouillé</div>
+  <div style="font-size:13px; opacity:.85; margin-bottom:22px;">Poste : <span id="lockCentreName"></span></div>
+  <input type="password" id="lockPass" placeholder="Mot de passe du centre" onkeydown="if(event.key==='Enter') unlockApp();" style="width:100%; max-width:280px; padding:12px 14px; border-radius:10px; border:none; font-size:15px; margin-bottom:10px;">
+  <div id="lockError" style="display:none; color:#FFB3B3; font-size:12.5px; margin-bottom:10px;">Mot de passe incorrect.</div>
+  <button onclick="unlockApp()" style="width:100%; max-width:280px; padding:13px; border-radius:10px; border:none; background:#fff; color:#0B3D2E; font-weight:800; font-size:15px;">Déverrouiller</button>
+  <div style="font-size:11.5px; opacity:.7; margin-top:18px; max-width:280px;">Utilisez ceci entre deux agents ou deux postes (ex : vaccination puis consultation) pour éviter que l'un voie l'écran de l'autre.</div>
+</div>
+
+<!-- ============ MODAL (générique) ============ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-sheet" id="modalSheet"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+/* ==========================================================================
+   SantéRH Guinée — Application de gestion du personnel de santé (niveau district)
+   Architecture : fichier unique + Firebase Realtime Database + cache localStorage
+   ========================================================================== */
+
+/* ---------------------- 1. CONFIGURATION FIREBASE ----------------------- */
+// Renseignez ici la config de VOTRE projet Firebase (Console Firebase > Paramètres du projet).
+// Tant que apiKey reste vide, l'application fonctionne en mode 100% local (localStorage),
+// ce qui permet de tester/utiliser hors ligne dès maintenant.
+const firebaseConfig = {
+  apiKey: "AIzaSyCAnYxH3FJ-ZI8TC2Ioyj_ayFGeEV3la2E",
+  authDomain: "santerhguinee.firebaseapp.com",
+  databaseURL: "https://santerhguinee-default-rtdb.firebaseio.com",
+  projectId: "santerhguinee",
+};
+
+let fbApp = null, fbDb = null, FIREBASE_ON = false;
+try {
+  if (firebaseConfig.apiKey && firebaseConfig.databaseURL) {
+    fbApp = firebase.initializeApp(firebaseConfig);
+    fbDb = firebase.database();
+    FIREBASE_ON = true;
+  }
+} catch (e) { console.warn("Firebase non initialisé :", e); FIREBASE_ON = false; }
+
+/* ---------------------- 2. ÉTAT GLOBAL ----------------------------------- */
+const LS_KEY = "santerh_gn_db_v1";
+const LS_SESSION = "santerh_gn_session_v1";
+
+let DB = { centres: {}, personnel: {}, presences: {}, conges: {}, users: {}, activites: {}, auditLog: [] };
+function ensureDBShape(){
+  // Firebase ne conserve pas les objets vides : on les recrée si absents
+  if(!DB.centres) DB.centres = {};
+  if(!DB.personnel) DB.personnel = {};
+  if(!DB.presences) DB.presences = {};
+  if(!DB.conges) DB.conges = {};
+  if(!DB.users) DB.users = {};
+  if(!DB.activites) DB.activites = {};
+  if(!DB.auditLog) DB.auditLog = [];
+}
+const DOMAINES_ACTIVITE = [
+  "Centre de santé",
+  "Hôpital",
+  "Direction",
+  "Campagne de vaccination",
+  "Surveillance des équipes",
+  "Autre"
+];
+let SESSION = null;        // { username, role, nom, centreId }
+let currentView = "dashboard";
+let currentCentreFilter = "ALL"; // 'ALL' pour vue district (admin)
+let presenceDate = todayISO();
+let editingId = null;
+
+/* ---------------------- 3. UTILITAIRES ------------------------------------ */
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function fmtDate(iso){
+  if(!iso) return "—";
+  const [y,m,d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+function initials(nom, prenom){
+  return ((prenom?prenom[0]:"") + (nom?nom[0]:"")).toUpperCase() || "?";
+}
+function nowHM(){
+  const d = new Date();
+  return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
+// Distance en mètres entre deux points GPS (formule de Haversine)
+function distanceMetres(lat1, lng1, lat2, lng2){
+  const R = 6371000;
+  const toRad = x => x * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+// Un pointage peut être une simple chaîne (ancien format) ou un objet enrichi {statut, heure, methode, lat, lng}
+function presenceStatut(entry){
+  if(!entry) return null;
+  return typeof entry === "string" ? entry : entry.statut;
+}
+function presenceMeta(entry){
+  if(!entry || typeof entry === "string") return null;
+  return entry;
+}
+function dureeMinutes(entry){
+  const meta = presenceMeta(entry);
+  if(!meta || !meta.heure || !meta.heureDepart) return 0;
+  const [h1,m1] = meta.heure.split(":").map(Number);
+  const [h2,m2] = meta.heureDepart.split(":").map(Number);
+  const mins = (h2*60+m2) - (h1*60+m1);
+  return mins > 0 ? mins : 0;
+}
+function fmtDuree(mins){
+  if(!mins) return "—";
+  const h = Math.floor(mins/60), m = mins%60;
+  return h ? `${h}h${m?String(m).padStart(2,"0"):""}` : `${m}min`;
+}
+window.addEventListener("error", (e)=>{
+  console.warn("Erreur JS interceptée :", e.message);
+  toast("⚠️ Erreur : " + e.message);
+});
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>{ t.style.display="none"; }, 2400);
+}
+function openModal(html){
+  document.getElementById("modalSheet").innerHTML = html;
+  document.getElementById("modalOverlay").classList.add("open");
+}
+function closeModal(){
+  document.getElementById("modalOverlay").classList.remove("open");
+  editingId = null;
+}
+document.getElementById("modalOverlay").addEventListener("click", (e)=>{
+  if(e.target.id === "modalOverlay") closeModal();
+});
+function togglePass(){
+  const f = document.getElementById("loginPass");
+  f.type = f.type === "password" ? "text" : "password";
+}
+
+/* ---------------------- 4. PERSISTANCE (local + Firebase) ----------------- */
+let MEMORY_DB_FALLBACK = null; // secours si localStorage est bloqué (ex: fichier ouvert en file://)
+function saveLocal(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify(DB));
+  }catch(e){
+    console.warn("localStorage indisponible, sauvegarde en mémoire seulement :", e);
+    MEMORY_DB_FALLBACK = JSON.parse(JSON.stringify(DB));
+    toast("⚠️ Stockage local bloqué (ouvrez le fichier via un lien web, pas en local)");
+  }
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ DB = JSON.parse(raw); }
+  }catch(e){
+    console.warn("localStorage indisponible au chargement :", e);
+    if(MEMORY_DB_FALLBACK){ DB = MEMORY_DB_FALLBACK; }
+  }
+  if(!DB.activites) DB.activites = {};
+  ensureDBShape();
+}
+function pushToFirebase(){
+  if(!FIREBASE_ON) return;
+  fbDb.ref("santerh").set(DB).then(()=>{
+    setSyncStatus(true);
+  }).catch(err=>{ console.warn(err); setSyncStatus(false); });
+}
+function setSyncStatus(ok){
+  const dot = document.getElementById("syncDot");
+  if(!dot) return;
+  dot.classList.toggle("off", !ok);
+  dot.title = ok ? "Synchronisé avec le serveur" : "Hors ligne — données stockées localement";
+}
+function persist(){
+  saveLocal();
+  pushToFirebase();
+}
+function formatTelGN(tel){
+  let t = (tel||"").replace(/[^\d+]/g,"");
+  if(!t) return "";
+  if(t.startsWith("+")) return t;
+  if(t.startsWith("00")) return "+"+t.slice(2);
+  if(t.startsWith("224")) return "+"+t;
+  return "+224"+t.replace(/^0+/,""); // numéro local guinéen sans indicatif
+}
+function envoyerWhatsApp(tel, message){
+  const t = formatTelGN(tel);
+  if(!t){ toast("Numéro de téléphone manquant pour cet agent."); return; }
+  window.open(`https://wa.me/${t.replace("+","")}?text=${encodeURIComponent(message)}`, "_blank");
+  logAudit("Message WhatsApp envoyé", t);
+}
+function envoyerSMS(tel, message){
+  const t = formatTelGN(tel);
+  if(!t){ toast("Numéro de téléphone manquant pour cet agent."); return; }
+  window.location.href = `sms:${t}?body=${encodeURIComponent(message)}`;
+  logAudit("Message SMS envoyé", t);
+}
+function logAudit(action, details){
+  if(!DB.auditLog) DB.auditLog = [];
+  DB.auditLog.unshift({
+    ts: Date.now(),
+    user: (SESSION && (SESSION.nom || SESSION.username)) || "?",
+    action, details: details || ""
+  });
+  if(DB.auditLog.length > 300) DB.auditLog.length = 300; // limite mémoire
+}
+function refreshApp(){
+  const btn = document.getElementById("refreshBtn");
+  if(btn) btn.classList.add("spin");
+  const finish = ()=>{
+    if(btn) btn.classList.remove("spin");
+    renderAll();
+    toast("Écran actualisé ✅");
+  };
+  if(FIREBASE_ON){
+    fbDb.ref("santerh").once("value").then(snap=>{
+      const data = snap.val();
+      if(data){ DB = data; ensureDBShape(); saveLocal(); }
+      setSyncStatus(true);
+      finish();
+    }).catch(err=>{
+      console.warn(err);
+      setSyncStatus(false);
+      loadLocal();
+      finish();
+    });
+  } else {
+    loadLocal();
+    setTimeout(finish, 250); // léger délai pour un retour visuel perceptible
+  }
+}
+function listenFirebase(){
+  if(!FIREBASE_ON) { setSyncStatus(false); return; }
+  fbDb.ref("santerh").on("value", (snap)=>{
+    const data = snap.val();
+    if(data){
+      DB = data;
+      ensureDBShape();
+      saveLocal();
+      renderAll();
+    } else {
+      // Première utilisation : on pousse les données locales (seed) vers Firebase
+      pushToFirebase();
+    }
+    setSyncStatus(true);
+  }, (err)=>{ console.warn(err); setSyncStatus(false); });
+  window.addEventListener("online", ()=> setSyncStatus(true));
+  window.addEventListener("offline", ()=> setSyncStatus(false));
+}
+
+/* ---------------------- 5. DONNÉES DE DÉPART (SEED) ------------------------ */
+function seedIfEmpty(){
+  if(Object.keys(DB.centres).length > 0) return;
+
+  const centreId = "kinieran";
+  DB.centres[centreId] = {
+    nom: "Centre de Santé de Kinieran",
+    district: "Mandiana",
+    region: "Kankan",
+    responsable: "",
+    telephone: "",
+    lat: null,
+    lng: null,
+    rayon: 150
+  };
+
+  DB.users["admin"] = {
+    password: "admin123",
+    role: "admin",
+    nom: "Administrateur District",
+    centreId: null
+  };
+  DB.users["kinieran"] = {
+    password: "kinieran123",
+    role: "chef",
+    nom: "Responsable Centre",
+    centreId: centreId
+  };
+
+  saveLocal();
+}
+
+/* ---------------------- 6. AUTHENTIFICATION -------------------------------- */
+function doLogin(){
+  const u = document.getElementById("loginUser").value.trim();
+  const p = document.getElementById("loginPass").value;
+  const errBox = document.getElementById("loginError");
+  errBox.style.display = "none";
+
+  const user = DB.users[u];
+  if(!user || user.password !== p){
+    errBox.textContent = "Nom d'utilisateur ou mot de passe incorrect.";
+    errBox.style.display = "block";
+    return;
+  }
+  SESSION = { username:u, role:user.role, nom:user.nom, centreId:user.centreId };
+  if(document.getElementById("rememberMe").checked){
+    localStorage.setItem(LS_SESSION, JSON.stringify(SESSION));
+  }
+  enterApp();
+}
+function doOfflineLogin(){
+  // Accès rapide hors-ligne avec le dernier profil connu, sinon admin par défaut
+  const saved = localStorage.getItem(LS_SESSION);
+  if(saved){ SESSION = JSON.parse(saved); }
+  else { SESSION = { username:"admin", role:"admin", nom:"Administrateur District", centreId:null }; }
+  enterApp();
+}
+function logout(){
+  SESSION = null;
+  localStorage.removeItem(LS_SESSION);
+  document.getElementById("app").style.display = "none";
+  document.getElementById("screen-login").style.display = "flex";
+  document.getElementById("loginUser").value = "";
+  document.getElementById("loginPass").value = "";
+}
+function lockApp(){
+  document.getElementById("lockCentreName").textContent = SESSION.nom || SESSION.username;
+  document.getElementById("lockPass").value = "";
+  document.getElementById("lockError").style.display = "none";
+  document.getElementById("screen-lock").style.display = "flex";
+}
+function unlockApp(){
+  const pass = document.getElementById("lockPass").value;
+  const user = DB.users[SESSION.username];
+  if(!user || user.password !== pass){
+    document.getElementById("lockError").style.display = "block";
+    return;
+  }
+  document.getElementById("screen-lock").style.display = "none";
+  showView("dashboard"); // écran neutre pour le prochain agent/poste
+}
+function enterApp(){
+  document.getElementById("screen-login").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+  currentCentreFilter = SESSION.role === "admin" ? "ALL" : SESSION.centreId;
+  buildCentreSelect();
+  showView("dashboard");
+  maybeShowOnboarding();
+}
+
+/* ---------------------- 7. SÉLECTEUR DE CENTRE ------------------------------ */
+function buildCentreSelect(){
+  const sel = document.getElementById("centreSelect");
+  sel.innerHTML = "";
+  if(SESSION.role === "admin"){
+    const optAll = document.createElement("option");
+    optAll.value = "ALL"; optAll.textContent = "Tous les centres";
+    sel.appendChild(optAll);
+  }
+  Object.keys(DB.centres).forEach(id=>{
+    if(SESSION.role !== "admin" && id !== SESSION.centreId) return;
+    const o = document.createElement("option");
+    o.value = id; o.textContent = DB.centres[id].nom;
+    sel.appendChild(o);
+  });
+  sel.value = currentCentreFilter;
+}
+function onCentreChange(){
+  currentCentreFilter = document.getElementById("centreSelect").value;
+  renderAll();
+}
+function visiblePersonnelIds(){
+  return Object.keys(DB.personnel).filter(id=>{
+    const p = DB.personnel[id];
+    return currentCentreFilter === "ALL" || p.centreId === currentCentreFilter;
+  });
+}
+
+/* ---------------------- 8. NAVIGATION --------------------------------------- */
+function showView(view){
+  currentView = view;
+  document.querySelectorAll(".nav-btn").forEach(b=>{
+    b.classList.toggle("active", b.dataset.view === view);
+  });
+  renderAll();
+}
+function renderAll(){
+  buildCentreSelect();
+  if(currentView === "dashboard") renderDashboard();
+  else if(currentView === "personnel") renderPersonnel();
+  else if(currentView === "presences") renderPresences();
+  else if(currentView === "conges") renderConges();
+  else if(currentView === "rapports") renderRapports();
+  else if(currentView === "merite") renderMerite();
+}
+function handleFab(){
+  if(currentView === "personnel") openPersonnelForm();
+  else if(currentView === "conges") openCongeForm();
+  else if(currentView === "presences") toast("Touchez un agent pour pointer sa présence.");
+  else if(currentView === "merite") openActiviteForm();
+  else if(currentView === "dashboard") showView("personnel");
+  else toast("Action non disponible sur cet écran.");
+}
+
+/* ---------------------- 9. DASHBOARD ---------------------------------------- */
+function renderDashboard(){
+  const ids = visiblePersonnelIds();
+  const total = ids.length;
+  const actifs = ids.filter(id=>DB.personnel[id].statut !== "inactif").length;
+
+  const todayP = DB.presences[presenceDate] || {};
+  let present=0, absent=0, retard=0;
+  ids.forEach(id=>{
+    const s = presenceStatut(todayP[id]);
+    if(s==="present") present++; else if(s==="absent") absent++; else if(s==="retard") retard++;
+  });
+
+  const congesActifs = Object.values(DB.conges).filter(c=>{
+    if(!ids.includes(c.personnelId)) return false;
+    return c.statut === "approuve" && c.dateDebut <= todayISO() && c.dateFin >= todayISO();
+  }).length;
+  const enAttente = Object.values(DB.conges).filter(c=> ids.includes(c.personnelId) && c.statut === "attente").length;
+
+  const centreLabel = currentCentreFilter === "ALL" ? "Vue district — tous les centres" : DB.centres[currentCentreFilter]?.nom;
+
+  // --- Alertes intelligentes ---
+  const alertes = [];
+  const nonPointes = ids.filter(id=> DB.personnel[id].statut!=="inactif" && !presenceStatut(todayP[id]));
+  if(nonPointes.length) alertes.push({ic:"⏱️", txt:`${nonPointes.length} agent${nonPointes.length>1?"s":""} non pointé${nonPointes.length>1?"s":""} aujourd'hui`, sev:"attente"});
+  const sansPin = ids.filter(id=> DB.personnel[id].statut!=="inactif" && !DB.personnel[id].pin);
+  if(sansPin.length) alertes.push({ic:"🔑", txt:`${sansPin.length} agent${sansPin.length>1?"s":""} sans code PIN configuré`, sev:"refuse"});
+  const dansJours = 30;
+  const limite = new Date(); limite.setDate(limite.getDate()+dansJours);
+  let diplomesExpirants = 0;
+  ids.forEach(id=>{
+    (DB.personnel[id].diplomes||[]).forEach(d=>{
+      if(d.expiration && d.expiration >= todayISO() && d.expiration <= limite.toISOString().slice(0,10)) diplomesExpirants++;
+    });
+  });
+  if(diplomesExpirants) alertes.push({ic:"🎓", txt:`${diplomesExpirants} diplôme(s)/certification(s) expirant sous ${dansJours} jours`, sev:"retard"});
+  let conflits = 0;
+  Object.values(DB.conges).forEach(c=>{
+    if(!ids.includes(c.personnelId) || c.statut!=="approuve") return;
+    Object.entries(DB.presences).forEach(([date,dayData])=>{
+      if(date < c.dateDebut || date > c.dateFin) return;
+      const s = presenceStatut(dayData[c.personnelId]);
+      if(s==="present" || s==="retard") conflits++;
+    });
+  });
+  if(conflits) alertes.push({ic:"⚠️", txt:`${conflits} pointage(s) en conflit avec un congé approuvé`, sev:"refuse"});
+
+  const recentList = Object.entries(DB.conges)
+    .filter(([id,c])=>ids.includes(c.personnelId))
+    .sort((a,b)=> (b[1].createdAt||0) - (a[1].createdAt||0))
+    .slice(0,4);
+
+  document.getElementById("content").innerHTML = `
+    <div class="section-title">Bonjour, ${SESSION.nom.split(" ")[0]} 👋</div>
+    <div class="section-sub">${centreLabel} · ${fmtDate(todayISO())}</div>
+
+    ${alertes.length? `<div class="card">
+      <h3>🔔 Alertes</h3>
+      ${alertes.map(a=>`<div class="list-item"><div class="li-main"><div class="li-name">${a.ic} ${a.txt}</div></div><span class="badge ${a.sev}">!</span></div>`).join("")}
+      ${nonPointes.length||sansPin.length ? `<button class="mini-link" style="margin-top:4px;" onclick="openDiffusion()">📢 Informer les agents concernés</button>` : ""}
+    </div>` : ""}
+    <div class="stat-grid">
+      <div class="stat-card v"><div class="num">${total}</div><div class="lbl">Agents (${actifs} actifs)</div></div>
+      <div class="stat-card b"><div class="num">${present}</div><div class="lbl">Présents aujourd'hui</div></div>
+      <div class="stat-card r"><div class="num">${absent}</div><div class="lbl">Absents aujourd'hui</div></div>
+      <div class="stat-card j"><div class="num">${retard}</div><div class="lbl">Retards aujourd'hui</div></div>
+    </div>
+
+    <div class="card">
+      <h3>📅 Congés &amp; missions</h3>
+      <div class="list-item">
+        <div class="li-main"><div class="li-name">En cours</div><div class="li-sub">Agents actuellement absents pour congé/mission</div></div>
+        <span class="badge actif">${congesActifs}</span>
+      </div>
+      <div class="list-item">
+        <div class="li-main"><div class="li-name">En attente de validation</div><div class="li-sub">Demandes à traiter</div></div>
+        <span class="badge attente">${enAttente}</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🕓 Dernières demandes</h3>
+      ${recentList.length? recentList.map(([id,c])=>{
+        const p = DB.personnel[c.personnelId] || {};
+        return `<div class="list-item">
+          <div class="avatar">${initials(p.nom,p.prenom)}</div>
+          <div class="li-main">
+            <div class="li-name">${p.prenom||""} ${p.nom||""}</div>
+            <div class="li-sub">${c.type==="mission"?"Mission":"Congé"} · ${fmtDate(c.dateDebut)} → ${fmtDate(c.dateFin)}</div>
+          </div>
+          <span class="badge ${c.statut}">${c.statut==="attente"?"En attente":c.statut==="approuve"?"Approuvé":"Refusé"}</span>
+        </div>`;
+      }).join("") : `<div class="empty-state" style="padding:14px;"><div class="ic">📭</div>Aucune demande récente</div>`}
+    </div>
+
+    ${currentCentreFilter==="ALL" ? `
+    <div class="card">
+      <h3>🏥 Centres du district</h3>
+      ${Object.entries(DB.centres).map(([id,c])=>{
+        const n = Object.values(DB.personnel).filter(p=>p.centreId===id).length;
+        return `<div class="list-item" onclick="openCentreForm('${id}')">
+          <div class="li-main"><div class="li-name">${c.nom}</div><div class="li-sub">${c.district||""}${c.region?", "+c.region:""}${c.lat?" · 📍 GPS défini":" · ⚠️ GPS non défini"}</div></div>
+          <span class="badge actif">${n} agent${n>1?"s":""}</span>
+        </div>`;
+      }).join("")}
+      ${SESSION.role==="admin" ? `<button class="btn-secondary" style="width:100%; margin-top:10px;" onclick="openCentreForm()">＋ Ajouter un centre</button>` : ""}
+    </div>` : ""}
+  `;
+}
+
+/* ---------------------- 9bis. GESTION DES CENTRES (GPS) ---------------------- */
+function openCentreForm(id){
+  const c = id ? DB.centres[id] : { nom:"", district:"", region:"", responsable:"", telephone:"", lat:null, lng:null, rayon:150 };
+  const cid = id || uid();
+  openModal(`
+    <h2>${id?"Modifier le centre":"Nouveau centre"} <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Nom du centre</label><input id="ct_nom" value="${c.nom||""}" placeholder="Ex : Centre de Santé de..."></div>
+    <div class="form-row2">
+      <div class="form-group"><label>District</label><input id="ct_district" value="${c.district||""}"></div>
+      <div class="form-group"><label>Région</label><input id="ct_region" value="${c.region||""}"></div>
+    </div>
+    <div class="form-group"><label>Responsable</label><input id="ct_resp" value="${c.responsable||""}"></div>
+    <div class="form-group"><label>Téléphone</label><input id="ct_tel" value="${c.telephone||""}"></div>
+    <div class="card" style="background:#F7FBF9; box-shadow:none; border:1px solid var(--gris-bord);">
+      <h3>📍 Position GPS (pour le pointage automatique)</h3>
+      <div class="form-row2">
+        <div class="form-group"><label>Latitude</label><input type="number" step="any" id="ct_lat" value="${c.lat??""}"></div>
+        <div class="form-group"><label>Longitude</label><input type="number" step="any" id="ct_lng" value="${c.lng??""}"></div>
+      </div>
+      <div class="form-group"><label>Rayon accepté (mètres)</label><input type="number" id="ct_rayon" value="${c.rayon||150}"></div>
+      <button class="btn-secondary" style="width:100%;" onclick="capturerPositionCentre()">📍 Capturer ma position actuelle</button>
+      <div id="ct_gpsStatus" style="font-size:12px; color:var(--texte-clair); margin-top:8px;"></div>
+    </div>
+    <div class="modal-actions">
+      ${id?`<button class="btn-danger" onclick="deleteCentre('${id}')">Supprimer</button>`:""}
+      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+    </div>
+    <button class="btn-primary" style="margin-top:10px;" onclick="saveCentre('${cid}')">💾 Enregistrer</button>
+  `);
+}
+function capturerPositionCentre(){
+  const statusEl = document.getElementById("ct_gpsStatus");
+  if(!navigator.geolocation){ statusEl.textContent = "GPS non disponible sur cet appareil."; return; }
+  statusEl.textContent = "📡 Recherche de la position…";
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById("ct_lat").value = pos.coords.latitude.toFixed(6);
+    document.getElementById("ct_lng").value = pos.coords.longitude.toFixed(6);
+    statusEl.textContent = `✅ Position capturée (précision ≈ ${Math.round(pos.coords.accuracy)} m)`;
+  }, err=>{
+    statusEl.textContent = "❌ Impossible d'obtenir la position : " + err.message;
+  }, { enableHighAccuracy:true, timeout:12000 });
+}
+function saveCentre(id){
+  const nom = document.getElementById("ct_nom").value.trim();
+  if(!nom){ toast("Le nom du centre est obligatoire."); return; }
+  const latVal = document.getElementById("ct_lat").value;
+  const lngVal = document.getElementById("ct_lng").value;
+  DB.centres[id] = {
+    nom,
+    district: document.getElementById("ct_district").value.trim(),
+    region: document.getElementById("ct_region").value.trim(),
+    responsable: document.getElementById("ct_resp").value.trim(),
+    telephone: document.getElementById("ct_tel").value.trim(),
+    lat: latVal !== "" ? parseFloat(latVal) : null,
+    lng: lngVal !== "" ? parseFloat(lngVal) : null,
+    rayon: parseInt(document.getElementById("ct_rayon").value) || 150
+  };
+  persist();
+  closeModal();
+  toast("Centre enregistré ✅");
+  renderAll();
+}
+function deleteCentre(id){
+  if(Object.values(DB.personnel).some(p=>p.centreId===id)){
+    toast("Impossible : des agents sont encore rattachés à ce centre.");
+    return;
+  }
+  if(!confirm("Supprimer ce centre ?")) return;
+  delete DB.centres[id];
+  persist();
+  closeModal();
+  toast("Centre supprimé");
+  renderAll();
+}
+
+/* ---------------------- 10. PERSONNEL --------------------------------------- */
+let personnelSearch = "";
+let personnelFilter = "tous";
+let categorieFilter = "tous";
+
+function categorieLabel(cat){
+  if(cat==="fonctionnaire") return {txt:"🏛️ Fonctionnaire", cls:"cat-fonctionnaire"};
+  if(cat==="volontaire") return {txt:"🤝 Volontaire", cls:"cat-volontaire"};
+  return {txt:"📄 Contractuel", cls:"cat-contractuel"};
+}
+function renderPersonnel(){
+  const ids = visiblePersonnelIds().filter(id=>{
+    const p = DB.personnel[id];
+    const matchSearch = !personnelSearch || (`${p.nom} ${p.prenom} ${p.poste}`.toLowerCase().includes(personnelSearch.toLowerCase()));
+    const matchFilter = personnelFilter === "tous" || p.statut === personnelFilter;
+    const matchCategorie = categorieFilter === "tous" || (p.categorie||"contractuel") === categorieFilter;
+    return matchSearch && matchFilter && matchCategorie;
+  });
+
+  document.getElementById("content").innerHTML = `
+    <div class="section-title">Personnel</div>
+    <div class="section-sub">${ids.length} agent${ids.length>1?"s":""} affiché${ids.length>1?"s":""}</div>
+    <div class="searchbar">
+      <input type="text" placeholder="Rechercher un agent, un poste..." value="${personnelSearch}" oninput="personnelSearch=this.value; renderPersonnel();">
+    </div>
+    <div class="chip-row">
+      <button class="chip ${personnelFilter==='tous'?'active':''}" onclick="personnelFilter='tous'; renderPersonnel();">Tous</button>
+      <button class="chip ${personnelFilter==='actif'?'active':''}" onclick="personnelFilter='actif'; renderPersonnel();">Actifs</button>
+      <button class="chip ${personnelFilter==='inactif'?'active':''}" onclick="personnelFilter='inactif'; renderPersonnel();">Inactifs</button>
+    </div>
+    <div class="chip-row">
+      <button class="chip ${categorieFilter==='tous'?'active':''}" onclick="categorieFilter='tous'; renderPersonnel();">Toutes catégories</button>
+      <button class="chip ${categorieFilter==='fonctionnaire'?'active':''}" onclick="categorieFilter='fonctionnaire'; renderPersonnel();">🏛️ Fonctionnaires</button>
+      <button class="chip ${categorieFilter==='contractuel'?'active':''}" onclick="categorieFilter='contractuel'; renderPersonnel();">📄 Contractuels</button>
+      <button class="chip ${categorieFilter==='volontaire'?'active':''}" onclick="categorieFilter='volontaire'; renderPersonnel();">🤝 Volontaires/Bénévoles</button>
+    </div>
+    <div class="card">
+      ${ids.length ? ids.map(id=>{
+        const p = DB.personnel[id];
+        const cat = categorieLabel(p.categorie);
+        return `<div class="list-item" onclick="openPersonnelForm('${id}')">
+          <div class="avatar" style="${p.photo?`background-image:url('${p.photo}'); background-size:cover; background-position:center;`:""}">${p.photo?"":initials(p.nom,p.prenom)}</div>
+          <div class="li-main">
+            <div class="li-name">${p.prenom||""} ${p.nom||""}</div>
+            <div class="li-sub">${p.poste||"—"} · ${DB.centres[p.centreId]?.nom||"—"}</div>
+            <span class="cat-badge ${cat.cls}">${cat.txt}</span>
+          </div>
+          <span class="badge ${p.statut==='inactif'?'refuse':'approuve'}">${p.statut==='inactif'?'Inactif':'Actif'}</span>
+        </div>`;
+      }).join("") : `<div class="empty-state"><div class="ic">👥</div>Aucun agent trouvé.<br>Touchez ＋ pour en ajouter un.</div>`}
+    </div>
+  `;
+}
+
+function openPersonnelForm(id){
+  editingId = id || null;
+  const p = id ? DB.personnel[id] : { nom:"", prenom:"", poste:"", centreId: currentCentreFilter!=="ALL"?currentCentreFilter:Object.keys(DB.centres)[0], telephone:"", dateEmbauche:"", statut:"actif", categorie:"contractuel", pin:"", photo:"", diplomes:[] };
+  if(!p.diplomes) p.diplomes = [];
+  window._formDiplomes = JSON.parse(JSON.stringify(p.diplomes)); // brouillon en édition
+  const centreOptions = Object.entries(DB.centres).map(([cid,c])=>`<option value="${cid}" ${p.centreId===cid?"selected":""}>${c.nom}</option>`).join("");
+
+  openModal(`
+    <h2>${id?"Modifier l'agent":"Nouvel agent"} <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+      <img id="f_photo_preview" src="${p.photo||''}" style="width:56px; height:56px; border-radius:50%; object-fit:cover; background:#eee; display:${p.photo?'block':'none'};">
+      <div id="f_photo_placeholder" style="width:56px; height:56px; border-radius:50%; background:var(--gris-clair,#eee); display:${p.photo?'none':'flex'}; align-items:center; justify-content:center; font-size:22px;">${initials(p.nom,p.prenom)||"👤"}</div>
+      <label class="btn-outline" style="flex:1; text-align:center; margin:0; cursor:pointer;">📷 Photo de profil
+        <input type="file" accept="image/*" id="f_photo_input" style="display:none;" onchange="handlePhotoUpload(this)">
+      </label>
+      <input type="hidden" id="f_photo" value="${p.photo||''}">
+    </div>
+    <div class="form-row2">
+      <div class="form-group"><label>Prénom</label><input id="f_prenom" value="${p.prenom||""}"></div>
+      <div class="form-group"><label>Nom</label><input id="f_nom" value="${p.nom||""}"></div>
+    </div>
+    <div class="form-group"><label>Poste / Fonction</label><input id="f_poste" value="${p.poste||""}" placeholder="Ex : Infirmier d'État, Agent PEV..."></div>
+    <div class="form-group"><label>Catégorie / Statut d'emploi</label>
+      <select id="f_categorie">
+        <option value="fonctionnaire" ${p.categorie==="fonctionnaire"?"selected":""}>🏛️ Fonctionnaire</option>
+        <option value="contractuel" ${(!p.categorie||p.categorie==="contractuel")?"selected":""}>📄 Contractuel</option>
+        <option value="volontaire" ${p.categorie==="volontaire"?"selected":""}>🤝 Volontaire / Bénévole</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Centre de santé</label><select id="f_centre">${centreOptions}</select></div>
+    <div class="form-row2">
+      <div class="form-group"><label>Téléphone</label><input id="f_tel" value="${p.telephone||""}"></div>
+      <div class="form-group"><label>Date d'embauche</label><input type="date" id="f_date" value="${p.dateEmbauche||""}"></div>
+    </div>
+    <div class="form-group"><label>Statut</label>
+      <select id="f_statut">
+        <option value="actif" ${p.statut==="actif"?"selected":""}>Actif</option>
+        <option value="inactif" ${p.statut==="inactif"?"selected":""}>Inactif</option>
+      </select>
+    </div>
+    ${id?`<button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="openBadgeModal('${id}')">🎫 Voir / imprimer le badge QR</button>`:""}
+    ${id?`<button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="openHistoriqueMerite('${id}')">📈 Historique mérite (6 derniers mois)</button>`:""}
+    ${id && p.telephone?`<div style="display:flex; gap:8px; margin-bottom:10px;">
+      <button class="btn-outline" style="flex:1;" onclick="envoyerWhatsApp('${p.telephone}', 'Bonjour ${p.prenom||''}, ')">💬 WhatsApp</button>
+      <button class="btn-outline" style="flex:1;" onclick="envoyerSMS('${p.telephone}', 'Bonjour ${p.prenom||''}, ')">✉️ SMS</button>
+    </div>`:""}
+    <div class="form-group"><label>Code PIN personnel (4 chiffres — pour signer ses propres activités)</label>
+      <input id="f_pin" inputmode="numeric" maxlength="4" pattern="[0-9]*" value="${p.pin||""}" placeholder="Ex : 1234">
+    </div>
+    <div class="form-group">
+      <label>🎓 Diplômes / certifications</label>
+      <div id="diplomesList"></div>
+      <button type="button" class="mini-link" onclick="addDiplomeRow()">➕ Ajouter un diplôme</button>
+    </div>
+    <div class="modal-actions">
+      ${id?`<button class="btn-danger" onclick="deletePersonnel('${id}')">Supprimer</button>`:""}
+      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+    </div>
+    <button class="btn-primary" style="margin-top:10px;" onclick="savePersonnel()">💾 Enregistrer</button>
+  `);
+  renderDiplomesList();
+}
+function handlePhotoUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 800*1024){ toast("Image trop lourde (max ~800 Ko). Choisissez une photo plus légère."); return; }
+  const reader = new FileReader();
+  reader.onload = e=>{
+    document.getElementById("f_photo").value = e.target.result;
+    const img = document.getElementById("f_photo_preview");
+    img.src = e.target.result; img.style.display = "block";
+    document.getElementById("f_photo_placeholder").style.display = "none";
+  };
+  reader.readAsDataURL(file);
+}
+function renderDiplomesList(){
+  const box = document.getElementById("diplomesList");
+  if(!box) return;
+  const list = window._formDiplomes || [];
+  box.innerHTML = list.length ? list.map((d,i)=>`
+    <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+      <input style="flex:2;" placeholder="Intitulé (ex: DU Maladies Émergentes)" value="${d.nom||""}" onchange="window._formDiplomes[${i}].nom=this.value">
+      <input type="date" style="flex:1;" title="Date d'obtention" value="${d.date||""}" onchange="window._formDiplomes[${i}].date=this.value">
+      <input type="date" style="flex:1;" title="Date d'expiration (si applicable)" value="${d.expiration||""}" onchange="window._formDiplomes[${i}].expiration=this.value">
+      <button type="button" class="btn-icon" onclick="removeDiplomeRow(${i})">✕</button>
+    </div>`).join("") : `<div class="section-sub" style="margin:4px 0;">Aucun diplôme enregistré.</div>`;
+}
+function addDiplomeRow(){
+  window._formDiplomes = window._formDiplomes || [];
+  window._formDiplomes.push({nom:"", date:"", expiration:""});
+  renderDiplomesList();
+}
+function removeDiplomeRow(i){
+  window._formDiplomes.splice(i,1);
+  renderDiplomesList();
+}
+function savePersonnel(){
+  const nom = document.getElementById("f_nom").value.trim();
+  const prenom = document.getElementById("f_prenom").value.trim();
+  if(!nom){ toast("Le nom est obligatoire."); return; }
+  const id = editingId || uid();
+  const pin = document.getElementById("f_pin").value.trim();
+  if(pin && !/^\d{4}$/.test(pin)){ toast("Le code PIN doit contenir exactement 4 chiffres."); return; }
+  DB.personnel[id] = {
+    nom, prenom,
+    poste: document.getElementById("f_poste").value.trim(),
+    categorie: document.getElementById("f_categorie").value,
+    centreId: document.getElementById("f_centre").value,
+    telephone: document.getElementById("f_tel").value.trim(),
+    dateEmbauche: document.getElementById("f_date").value,
+    statut: document.getElementById("f_statut").value,
+    pin,
+    photo: document.getElementById("f_photo").value || "",
+    diplomes: (window._formDiplomes||[]).filter(d=>d.nom && d.nom.trim())
+  };
+  logAudit(editingId?"Modification agent":"Création agent", `${prenom} ${nom}`);
+  persist();
+  closeModal();
+  toast("Agent enregistré ✅");
+  renderAll();
+}
+function deletePersonnel(id){
+  if(!confirm("Supprimer définitivement cet agent ?")) return;
+  const p = DB.personnel[id];
+  logAudit("Suppression agent", `${p?.prenom||""} ${p?.nom||""}`);
+  delete DB.personnel[id];
+  persist();
+  closeModal();
+  toast("Agent supprimé");
+  renderAll();
+}
+
+/* ---------------------- 11. PRÉSENCES --------------------------------------- */
+function renderPresences(){
+  const ids = visiblePersonnelIds().filter(id=>DB.personnel[id].statut!=="inactif");
+  const dayData = DB.presences[presenceDate] || {};
+
+  document.getElementById("content").innerHTML = `
+    <div class="section-title">Présences</div>
+    <div class="section-sub">Pointage journalier du personnel</div>
+    <div class="field" style="margin-bottom:14px;">
+      <span class="icon">📅</span>
+      <input type="date" id="presDateInput" value="${presenceDate}" onchange="presenceDate=this.value; renderPresences();">
+    </div>
+    <button class="scan-btn" onclick="openScanner()">📷 Pointer arrivée / départ (scan badge)</button>
+    <div class="card">
+      ${ids.length? ids.map(id=>{
+        const p = DB.personnel[id];
+        const entry = dayData[id] || null;
+        const s = presenceStatut(entry);
+        const meta = presenceMeta(entry);
+        const nbActs = Object.values(DB.activites).filter(a=>a.personnelId===id && a.date===presenceDate).length;
+        const isScanne = meta && meta.heure;
+        return `<div class="list-item">
+          <div class="avatar">${initials(p.nom,p.prenom)}</div>
+          <div class="li-main">
+            <div class="li-name">${p.prenom||""} ${p.nom||""}${isScanne?`<span class="gps-tag">📷 QR</span>`:""}</div>
+            <div class="li-sub">${p.poste||"—"}${currentCentreFilter==="ALL"?" · "+(DB.centres[p.centreId]?.nom||""):""}</div>
+            ${isScanne? `<div class="horaires-row">
+              <span class="h-arr">🕗 Arrivée : ${meta.heure}</span>
+              <span class="${meta.heureDepart?'h-dep':'h-empty'}">🕔 Départ : ${meta.heureDepart||"— (à scanner)"}</span>
+            </div>
+            <span class="qr-status ${s==='retard'?'st-retard':'st-present'}">${s==='retard'?'🟡 Retard':'🟢 Présent'} (via QR)</span>`
+            : s==="absent" ? `<span class="qr-status st-absent">🔴 Marqué absent</span>`
+            : `<span class="qr-status st-attente">⚪ Pas encore pointé aujourd'hui</span>`}
+            ${!isScanne? `<button class="att-btn ${s==='absent'?'sel-absent':''}" style="width:100%; margin-top:8px;" onclick="setPresence('${id}','absent')">${s==='absent'?"↩️ Annuler l'absence":"🚫 Marquer absent"}</button>` : ""}
+            <button class="mini-link" style="margin-top:8px;" onclick="openActiviteForm('${id}','${presenceDate}')">➕ Ajouter une activité${nbActs?` (${nbActs} aujourd'hui)`:""}</button>
+          </div>
+        </div>`;
+      }).join("") : `<div class="empty-state"><div class="ic">🕒</div>Aucun agent actif à pointer.</div>`}
+    </div>
+  `;
+}
+function setPresence(personnelId, statut){
+  if(!DB.presences[presenceDate]) DB.presences[presenceDate] = {};
+  const current = presenceStatut(DB.presences[presenceDate][personnelId]);
+  const p = DB.personnel[personnelId];
+  if(current === statut){
+    delete DB.presences[presenceDate][personnelId]; // toggle off
+    logAudit("Annulation absence", `${p?.prenom||""} ${p?.nom||""} · ${presenceDate}`);
+  } else {
+    DB.presences[presenceDate][personnelId] = statut; // marquage manuel simple (absence uniquement)
+    logAudit("Marqué absent", `${p?.prenom||""} ${p?.nom||""} · ${presenceDate}`);
+  }
+  persist();
+  renderPresences();
+}
+
+/* ---------------------- 11bis. BADGE QR PERSONNEL ---------------------------- */
+function ensureQrToken(personnelId){
+  if(!DB.personnel[personnelId].qrToken){
+    DB.personnel[personnelId].qrToken = uid();
+    persist();
+  }
+  return DB.personnel[personnelId].qrToken;
+}
+function openBadgeModal(personnelId){
+  const p = DB.personnel[personnelId];
+  const token = ensureQrToken(personnelId);
+  const payload = JSON.stringify({ i: personnelId, t: token });
+  openModal(`
+    <h2>Badge de pointage <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="badge-qr-box">
+      <div id="qrHolder"></div>
+      <div class="bq-name">${p.prenom||""} ${p.nom||""}</div>
+      <div class="bq-sub">${p.poste||""} · ${DB.centres[p.centreId]?.nom||""}</div>
+    </div>
+    <div class="section-sub" style="text-align:center;">Ce badge sert à pointer la présence automatiquement (scan + GPS). Imprimez-le et gardez-le sur vous, ou affichez-le depuis votre téléphone.</div>
+    <button class="btn-primary" style="margin-top:10px;" onclick="imprimerBadge('${personnelId}')">🖨️ Imprimer ce badge</button>
+  `);
+  setTimeout(()=>{
+    const holder = document.getElementById("qrHolder");
+    if(holder && window.QRCode){
+      holder.innerHTML = "";
+      new QRCode(holder, { text: payload, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M });
+    }
+  }, 30);
+}
+function imprimerBadge(personnelId){
+  const p = DB.personnel[personnelId];
+  const token = ensureQrToken(personnelId);
+  const payload = JSON.stringify({ i: personnelId, t: token });
+  const area = document.getElementById("printArea");
+  area.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;padding:40px;font-family:sans-serif;">
+    <div id="printQr"></div>
+    <div style="font-weight:800;font-size:20px;margin-top:14px;">${p.prenom||""} ${p.nom||""}</div>
+    <div style="color:#666;">${p.poste||""}</div>
+    <div style="color:#666;">${DB.centres[p.centreId]?.nom||""}</div>
+    <div style="margin-top:8px;font-size:12px;color:#999;">Badge SantéRH Guinée</div>
+  </div>`;
+  new QRCode(document.getElementById("printQr"), { text: payload, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
+  setTimeout(()=> window.print(), 200);
+}
+
+/* ---------------------- 11ter. SCANNER QR + VALIDATION GPS ------------------- */
+let _scanStream = null, _scanLoopId = null, _scanCooldown = false;
+
+function openScanner(){
+  openModal(`
+    <h2>Scanner un badge <button class="close-x" onclick="stopScanner()">✕</button></h2>
+    <div class="scan-video-wrap">
+      <video id="qrVideo" playsinline muted autoplay></video>
+      <div class="scan-frame"></div>
+    </div>
+    <div class="scan-status" id="scanStatus">Placez le QR code de l'agent dans le cadre…</div>
+    <button class="btn-secondary" style="width:100%;" onclick="stopScanner()">Fermer le scanner</button>
+  `);
+  startScannerCamera();
+}
+function startScannerCamera(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    document.getElementById("scanStatus").textContent = "Caméra non disponible sur cet appareil/navigateur.";
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream=>{
+    _scanStream = stream;
+    const video = document.getElementById("qrVideo");
+    if(!video) { stopScanner(); return; }
+    video.srcObject = stream;
+    video.setAttribute("playsinline", "true");
+    video.play();
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    function tick(){
+      if(!_scanStream) return; // scanner fermé
+      if(video.readyState === video.HAVE_ENOUGH_DATA && !_scanCooldown){
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = window.jsQR ? jsQR(imageData.data, imageData.width, imageData.height) : null;
+        if(code && code.data){
+          handleQrDecoded(code.data);
+        }
+      }
+      _scanLoopId = requestAnimationFrame(tick);
+    }
+    _scanLoopId = requestAnimationFrame(tick);
+  }).catch(err=>{
+    const el = document.getElementById("scanStatus");
+    if(el) el.textContent = "❌ Accès caméra refusé : " + err.message;
+  });
+}
+function stopScanner(){
+  if(_scanLoopId) cancelAnimationFrame(_scanLoopId);
+  _scanLoopId = null;
+  if(_scanStream){
+    _scanStream.getTracks().forEach(t=>t.stop());
+    _scanStream = null;
+  }
+  closeModal();
+  renderPresences();
+}
+function handleQrDecoded(text){
+  if(_scanCooldown) return;
+  let payload;
+  try{ payload = JSON.parse(text); } catch(e){ return; }
+  if(!payload || !payload.i || !DB.personnel[payload.i]) return;
+  const personnelId = payload.i;
+  const p = DB.personnel[personnelId];
+  if(p.qrToken && p.qrToken !== payload.t) return; // badge non reconnu
+
+  _scanCooldown = true;
+  const statusEl = document.getElementById("scanStatus");
+  if(statusEl){ statusEl.className = "scan-status"; statusEl.textContent = `📡 Vérification de la position pour ${p.prenom||""} ${p.nom||""}…`; }
+
+  const finishCooldown = ()=> setTimeout(()=>{ _scanCooldown = false; }, 2200);
+
+  if(!navigator.geolocation){
+    validerEtEnregistrerPresence(personnelId, null);
+    finishCooldown();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    validerEtEnregistrerPresence(personnelId, { lat: pos.coords.latitude, lng: pos.coords.longitude });
+    finishCooldown();
+  }, err=>{
+    // GPS indisponible : on enregistre quand même mais sans coordonnées
+    validerEtEnregistrerPresence(personnelId, null);
+    finishCooldown();
+  }, { enableHighAccuracy:true, timeout:10000 });
+}
+function validerEtEnregistrerPresence(personnelId, coords){
+  const p = DB.personnel[personnelId];
+  const centre = DB.centres[p.centreId];
+  const statusEl = document.getElementById("scanStatus");
+
+  // Si l'agent a déjà pointé son arrivée aujourd'hui sans départ, ce scan enregistre le départ
+  const existant = DB.presences[presenceDate] && DB.presences[presenceDate][personnelId];
+  const metaExistante = presenceMeta(existant) || (typeof existant==="string" ? {statut:existant} : null);
+  if(metaExistante && metaExistante.heure && !metaExistante.heureDepart){
+    const heureDepart = nowHM();
+    DB.presences[presenceDate][personnelId].heureDepart = heureDepart;
+    persist();
+    if(statusEl){
+      statusEl.className = "scan-status ok";
+      statusEl.textContent = `🚪 ${p.prenom||""} ${p.nom||""} — Départ enregistré (${heureDepart})`;
+    }
+    toast(`${p.prenom||""} ${p.nom||""} — départ pointé ✅`);
+    return;
+  }
+
+  if(centre && centre.lat != null && centre.lng != null && coords){
+    const dist = distanceMetres(coords.lat, coords.lng, centre.lat, centre.lng);
+    const rayon = centre.rayon || 150;
+    if(dist > rayon){
+      if(statusEl){
+        statusEl.className = "scan-status err";
+        statusEl.textContent = `❌ ${p.prenom||""} ${p.nom||""} est à ${Math.round(dist)} m du centre (rayon autorisé : ${rayon} m). Pointage refusé.`;
+      }
+      toast("Hors du périmètre du centre — pointage refusé");
+      return;
+    }
+  }
+
+  const heure = nowHM();
+  const statut = heure > "08:30" ? "retard" : "present";
+  if(!DB.presences[presenceDate]) DB.presences[presenceDate] = {};
+  DB.presences[presenceDate][personnelId] = {
+    statut, heure, methode: "qr",
+    lat: coords ? coords.lat : null,
+    lng: coords ? coords.lng : null
+  };
+  persist();
+
+  if(statusEl){
+    statusEl.className = "scan-status ok";
+    statusEl.textContent = `✅ ${p.prenom||""} ${p.nom||""} — ${statut==="present"?"Présent":"Retard"} (${heure})`;
+  }
+  toast(`${p.prenom||""} ${p.nom||""} pointé(e) ✅`);
+}
+
+/* ---------------------- 12. CONGÉS & MISSIONS -------------------------------- */
+let congesFilter = "tous";
+function renderConges(){
+  const ids = visiblePersonnelIds();
+  const list = Object.entries(DB.conges)
+    .filter(([id,c])=> ids.includes(c.personnelId))
+    .filter(([id,c])=> congesFilter==="tous" || c.statut===congesFilter)
+    .sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+
+  document.getElementById("content").innerHTML = `
+    <div class="section-title">Congés &amp; missions</div>
+    <div class="section-sub">${list.length} demande${list.length>1?"s":""}</div>
+    <div class="chip-row">
+      <button class="chip ${congesFilter==='tous'?'active':''}" onclick="congesFilter='tous'; renderConges();">Toutes</button>
+      <button class="chip ${congesFilter==='attente'?'active':''}" onclick="congesFilter='attente'; renderConges();">En attente</button>
+      <button class="chip ${congesFilter==='approuve'?'active':''}" onclick="congesFilter='approuve'; renderConges();">Approuvées</button>
+      <button class="chip ${congesFilter==='refuse'?'active':''}" onclick="congesFilter='refuse'; renderConges();">Refusées</button>
+    </div>
+    <div class="card">
+      ${list.length? list.map(([id,c])=>{
+        const p = DB.personnel[c.personnelId] || {};
+        return `<div class="list-item" onclick="openCongeDetail('${id}')">
+          <div class="avatar">${initials(p.nom,p.prenom)}</div>
+          <div class="li-main">
+            <div class="li-name">${p.prenom||""} ${p.nom||""} <span class="badge ${c.type==='mission'?'mission':'conge'}" style="margin-left:4px;">${c.type==='mission'?'Mission':'Congé'}</span></div>
+            <div class="li-sub">${fmtDate(c.dateDebut)} → ${fmtDate(c.dateFin)} · ${c.motif||""}</div>
+          </div>
+          <span class="badge ${c.statut}">${c.statut==="attente"?"En attente":c.statut==="approuve"?"Approuvé":"Refusé"}</span>
+        </div>`;
+      }).join("") : `<div class="empty-state"><div class="ic">📅</div>Aucune demande.<br>Touchez ＋ pour en créer une.</div>`}
+    </div>
+  `;
+}
+function openCongeForm(){
+  editingId = null;
+  const ids = visiblePersonnelIds();
+  const options = ids.map(id=>{
+    const p = DB.personnel[id];
+    return `<option value="${id}">${p.prenom||""} ${p.nom||""}</option>`;
+  }).join("");
+  openModal(`
+    <h2>Nouvelle demande <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Agent</label><select id="c_personnel">${options||"<option>Aucun agent</option>"}</select></div>
+    <div class="form-group"><label>Type</label>
+      <select id="c_type">
+        <option value="conge">Congé</option>
+        <option value="mission">Mission</option>
+      </select>
+    </div>
+    <div class="form-row2">
+      <div class="form-group"><label>Date de début</label><input type="date" id="c_debut" value="${todayISO()}"></div>
+      <div class="form-group"><label>Date de fin</label><input type="date" id="c_fin" value="${todayISO()}"></div>
+    </div>
+    <div class="form-group"><label>Motif / Objet</label><textarea id="c_motif" placeholder="Ex : congé annuel, mission de supervision..."></textarea></div>
+    <button class="btn-primary" onclick="saveConge()">💾 Enregistrer la demande</button>
+  `);
+}
+function saveConge(){
+  const personnelId = document.getElementById("c_personnel").value;
+  if(!personnelId){ toast("Sélectionnez un agent."); return; }
+  const id = uid();
+  DB.conges[id] = {
+    personnelId,
+    type: document.getElementById("c_type").value,
+    dateDebut: document.getElementById("c_debut").value,
+    dateFin: document.getElementById("c_fin").value,
+    motif: document.getElementById("c_motif").value.trim(),
+    statut: "attente",
+    createdAt: Date.now()
+  };
+  const p = DB.personnel[personnelId];
+  logAudit("Demande congé/mission", `${p?.prenom||""} ${p?.nom||""}`);
+  persist();
+  closeModal();
+  toast("Demande enregistrée ✅");
+  renderAll();
+}
+function openCongeDetail(id){
+  const c = DB.conges[id];
+  const p = DB.personnel[c.personnelId] || {};
+  openModal(`
+    <h2>${c.type==='mission'?'Mission':'Congé'} <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Agent</label><input value="${p.prenom||""} ${p.nom||""}" disabled></div>
+    <div class="form-row2">
+      <div class="form-group"><label>Début</label><input value="${fmtDate(c.dateDebut)}" disabled></div>
+      <div class="form-group"><label>Fin</label><input value="${fmtDate(c.dateFin)}" disabled></div>
+    </div>
+    <div class="form-group"><label>Motif</label><textarea disabled>${c.motif||"—"}</textarea></div>
+    <div class="form-group"><label>Statut actuel</label><span class="badge ${c.statut}">${c.statut==="attente"?"En attente":c.statut==="approuve"?"Approuvé":"Refusé"}</span></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="updateCongeStatut('${id}','refuse')">✕ Refuser</button>
+      <button class="btn-primary" onclick="updateCongeStatut('${id}','approuve')">✓ Approuver</button>
+    </div>
+    <button class="btn-danger" style="width:100%; margin-top:10px;" onclick="deleteConge('${id}')">Supprimer la demande</button>
+  `);
+}
+function updateCongeStatut(id, statut){
+  DB.conges[id].statut = statut;
+  const p = DB.personnel[DB.conges[id].personnelId];
+  logAudit(statut==="approuve"?"Congé approuvé":"Congé refusé", `${p?.prenom||""} ${p?.nom||""}`);
+  persist();
+  closeModal();
+  toast(statut==="approuve"?"Demande approuvée ✅":"Demande refusée");
+  renderAll();
+}
+function deleteConge(id){
+  if(!confirm("Supprimer cette demande ?")) return;
+  const p = DB.personnel[DB.conges[id]?.personnelId];
+  logAudit("Suppression congé/mission", `${p?.prenom||""} ${p?.nom||""}`);
+  delete DB.conges[id];
+  persist();
+  closeModal();
+  toast("Demande supprimée");
+  renderAll();
+}
+
+/* ---------------------- 13. RAPPORTS ------------------------------------------ */
+let rapportMonth = todayISO().slice(0,7); // YYYY-MM
+
+function renderRapports(){
+  const ids = visiblePersonnelIds();
+  const centreLabel = currentCentreFilter === "ALL" ? "Tous les centres (district)" : DB.centres[currentCentreFilter]?.nom;
+
+  // Agrégation présences du mois
+  let joursComptes=0, totalPresent=0, totalAbsent=0, totalRetard=0, totalMinutes=0;
+  Object.entries(DB.presences).forEach(([date, dayData])=>{
+    if(!date.startsWith(rapportMonth)) return;
+    joursComptes++;
+    Object.entries(dayData).forEach(([pid, entry])=>{
+      if(!ids.includes(pid)) return;
+      const statut = presenceStatut(entry);
+      if(statut==="present") totalPresent++;
+      else if(statut==="absent") totalAbsent++;
+      else if(statut==="retard") totalRetard++;
+      totalMinutes += dureeMinutes(entry);
+    });
+  });
+  const totalPointages = totalPresent+totalAbsent+totalRetard;
+  const tauxPresence = totalPointages? Math.round((totalPresent+totalRetard*0.5)/totalPointages*100) : 0;
+
+  const congesMois = Object.values(DB.conges).filter(c=> ids.includes(c.personnelId) && c.dateDebut.startsWith(rapportMonth));
+  const congesApprouves = congesMois.filter(c=>c.statut==="approuve").length;
+
+  // Répartition par catégorie
+  const repCat = {fonctionnaire:0, contractuel:0, volontaire:0};
+  ids.forEach(id=>{ const c = DB.personnel[id].categorie || "contractuel"; repCat[c] = (repCat[c]||0)+1; });
+
+  document.getElementById("content").innerHTML = `
+    <div class="section-title">Rapports</div>
+    <div class="section-sub">${centreLabel}</div>
+    <div class="field" style="margin-bottom:14px;">
+      <span class="icon">🗓️</span>
+      <input type="month" id="rapportMonthInput" value="${rapportMonth}" onchange="rapportMonth=this.value; renderRapports();">
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card v"><div class="num">${ids.length}</div><div class="lbl">Agents concernés</div></div>
+      <div class="stat-card b"><div class="num">${tauxPresence}%</div><div class="lbl">Taux de présence</div></div>
+      <div class="stat-card r"><div class="num">${totalAbsent}</div><div class="lbl">Absences enregistrées</div></div>
+      <div class="stat-card j"><div class="num">${congesApprouves}</div><div class="lbl">Congés/missions approuvés</div></div>
+    </div>
+
+    <div class="card">
+      <h3>📈 Détail des pointages du mois</h3>
+      <div class="list-item"><div class="li-main"><div class="li-name">Jours pointés</div></div><span class="badge actif">${joursComptes}</span></div>
+      <div class="list-item"><div class="li-main"><div class="li-name">Présences</div></div><span class="badge present">${totalPresent}</span></div>
+      <div class="list-item"><div class="li-main"><div class="li-name">Retards</div></div><span class="badge retard">${totalRetard}</span></div>
+      <div class="list-item"><div class="li-main"><div class="li-name">Absences</div></div><span class="badge absent">${totalAbsent}</span></div>
+      <div class="list-item"><div class="li-main"><div class="li-name">Temps de travail cumulé (arrivée→départ)</div></div><span class="badge actif">${fmtDuree(totalMinutes)}</span></div>
+    </div>
+
+    <div class="card">
+      <h3>🗂️ Répartition par catégorie</h3>
+      <div class="list-item"><div class="li-main"><div class="li-name">🏛️ Fonctionnaires</div></div><span class="badge actif">${repCat.fonctionnaire}</span></div>
+      <div class="list-item"><div class="li-main"><div class="li-name">📄 Contractuels</div></div><span class="badge actif">${repCat.contractuel}</span></div>
+      <div class="list-item"><div class="li-main"><div class="li-name">🤝 Volontaires/Bénévoles</div></div><span class="badge actif">${repCat.volontaire}</span></div>
+    </div>
+
+    <div class="card">
+      <h3>👥 Détail par agent</h3>
+      ${ids.length ? ids.map(id=>{
+        const p = DB.personnel[id];
+        let pr=0,ab=0,re=0,mins=0;
+        Object.entries(DB.presences).forEach(([date,dayData])=>{
+          if(!date.startsWith(rapportMonth)) return;
+          const s = presenceStatut(dayData[id]);
+          if(s==="present") pr++; else if(s==="absent") ab++; else if(s==="retard") re++;
+          mins += dureeMinutes(dayData[id]);
+        });
+        return `<div class="list-item">
+          <div class="avatar">${initials(p.nom,p.prenom)}</div>
+          <div class="li-main"><div class="li-name">${p.prenom||""} ${p.nom||""}</div><div class="li-sub">${p.poste||""} · ⏱️ ${fmtDuree(mins)}</div></div>
+          <div style="text-align:right; font-size:12px;">
+            <div style="color:#1E7C3C; font-weight:700;">${pr}P</div>
+            <div style="color:#B8860B;">${re}R</div>
+            <div style="color:#CE1126;">${ab}A</div>
+          </div>
+        </div>`;
+      }).join("") : `<div class="empty-state"><div class="ic">📊</div>Aucune donnée pour cette période.</div>`}
+    </div>
+
+    <button class="btn-primary" onclick="window.print()">🖨️ Générer / imprimer le rapport PDF</button>
+    <button class="btn-outline" style="width:100%; margin-top:8px;" onclick="exportRapportCSV()">📑 Exporter en CSV (Excel)</button>
+  `;
+}
+
+/* ---------------------- 14. ACTIVITÉS PAR AGENT --------------------------------- */
+function openActiviteForm(personnelId, date){
+  const ids = visiblePersonnelIds();
+  const fixedAgent = !!personnelId;
+  const options = ids.map(id=>{
+    const p = DB.personnel[id];
+    return `<option value="${id}" ${id===personnelId?"selected":""}>${p.prenom||""} ${p.nom||""}</option>`;
+  }).join("");
+  const domOptions = DOMAINES_ACTIVITE.map(d=>`<option value="${d}">${d}</option>`).join("");
+  openModal(`
+    <h2>Nouvelle activité <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Agent</label>
+      ${fixedAgent ? `<input value="${DB.personnel[personnelId].prenom||""} ${DB.personnel[personnelId].nom||""}" disabled><input type="hidden" id="ac_personnel" value="${personnelId}">`
+      : `<select id="ac_personnel">${options||"<option>Aucun agent</option>"}</select>`}
+    </div>
+    <div class="form-group"><label>Votre code PIN (confirme que c'est bien vous qui enregistrez)</label>
+      <input id="ac_pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    </div>
+    <div class="form-row2">
+      <div class="form-group"><label>Date</label><input type="date" id="ac_date" value="${date||todayISO()}"></div>
+      <div class="form-group"><label>Domaine</label><select id="ac_domaine">${domOptions}</select></div>
+    </div>
+    <div class="form-group"><label>Description de l'activité</label><textarea id="ac_desc" placeholder="Ex : 12 enfants vaccinés Penta1, réunion de coordination, supervision de l'équipe mobile..."></textarea></div>
+    <div class="form-group"><label>Quantité / valeur (optionnel)</label><input type="number" id="ac_qte" value="1" min="0"></div>
+    <button class="btn-primary" onclick="saveActivite(${fixedAgent ? `'${personnelId}'` : "null"})">💾 Enregistrer l'activité</button>
+  `);
+}
+function saveActivite(fixedPersonnelId){
+  const personnelId = fixedPersonnelId || document.getElementById("ac_personnel").value;
+  if(!personnelId){ toast("Sélectionnez un agent."); return; }
+  const agent = DB.personnel[personnelId];
+  const pinSaisi = document.getElementById("ac_pin").value.trim();
+  if(agent.pin){
+    if(pinSaisi !== agent.pin){ toast("Code PIN incorrect — activité non enregistrée."); return; }
+  } else if(!pinSaisi){
+    toast("Aucun code PIN défini pour cet agent. Configurez-en un dans sa fiche, ou laissez ce champ vide pour continuer sans vérification.");
+  }
+  const description = document.getElementById("ac_desc").value.trim();
+  if(!description){ toast("Décrivez brièvement l'activité."); return; }
+  const id = uid();
+  DB.activites[id] = {
+    personnelId,
+    date: document.getElementById("ac_date").value || todayISO(),
+    domaine: document.getElementById("ac_domaine").value,
+    description,
+    quantite: parseFloat(document.getElementById("ac_qte").value) || 0,
+    signe: !!(agent.pin && pinSaisi === agent.pin),
+    createdAt: Date.now()
+  };
+  logAudit("Activité enregistrée", `${agent.prenom||""} ${agent.nom||""} · ${document.getElementById("ac_domaine").value}`);
+  persist();
+  closeModal();
+  toast("Activité enregistrée ✅");
+  renderAll();
+}
+function deleteActivite(id){
+  if(!confirm("Supprimer cette activité ?")) return;
+  const a = DB.activites[id];
+  const p = DB.personnel[a?.personnelId];
+  logAudit("Suppression activité", `${p?.prenom||""} ${p?.nom||""}`);
+  delete DB.activites[id];
+  persist();
+  closeModal();
+  toast("Activité supprimée");
+  renderAll();
+}
+function openActiviteDetail(id){
+  const a = DB.activites[id];
+  const p = DB.personnel[a.personnelId] || {};
+  openModal(`
+    <h2>Activité <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Agent</label><input value="${p.prenom||""} ${p.nom||""}" disabled></div>
+    <div class="form-row2">
+      <div class="form-group"><label>Date</label><input value="${fmtDate(a.date)}" disabled></div>
+      <div class="form-group"><label>Domaine</label><input value="${a.domaine}" disabled></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea disabled>${a.description}</textarea></div>
+    <div class="form-group"><label>Quantité</label><input value="${a.quantite}" disabled></div>
+    <button class="btn-danger" style="width:100%;" onclick="deleteActivite('${id}')">Supprimer</button>
+  `);
+}
+
+/* ---------------------- 15. CLASSEMENT MÉRITE (activités + assiduité) ----------- */
+let meriteMonth = todayISO().slice(0,7);
+let activitesVue = "mois"; // "jour" | "mois"
+
+function calculerMerite(ids, month){
+  return ids.map(id=>{
+    const p = DB.personnel[id];
+    // Assiduité
+    let pr=0, re=0, ab=0, joursPointes=0;
+    Object.entries(DB.presences).forEach(([date,dayData])=>{
+      if(!date.startsWith(month)) return;
+      const s = presenceStatut(dayData[id]);
+      if(!s) return;
+      joursPointes++;
+      if(s==="present") pr++; else if(s==="retard") re++; else if(s==="absent") ab++;
+    });
+    const tauxAssiduite = joursPointes ? Math.round(((pr + re*0.5) / joursPointes) * 100) : 0;
+    // Activités
+    const actsAgent = Object.values(DB.activites).filter(a=>a.personnelId===id && a.date.startsWith(month));
+    const nbActivites = actsAgent.length;
+    const totalQuantite = actsAgent.reduce((s,a)=>s+(a.quantite||0),0);
+    return { id, p, tauxAssiduite, nbActivites, totalQuantite, joursPointes };
+  });
+}
+function openHistoriqueMerite(personnelId){
+  const p = DB.personnel[personnelId];
+  const rows = [];
+  const now = new Date();
+  for(let i=0;i<6;i++){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const month = d.toISOString().slice(0,7);
+    const [stat] = calculerMerite([personnelId], month);
+    rows.push({month, ...stat});
+  }
+  openModal(`
+    <h2>📈 Historique — ${p.prenom||""} ${p.nom||""} <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="card" style="box-shadow:none; padding:0;">
+      ${rows.map(r=>`<div class="list-item">
+        <div class="li-main"><div class="li-name">${fmtMonth(r.month)}</div><div class="li-sub">${r.nbActivites} activité${r.nbActivites>1?"s":""} · ${r.joursPointes} jour${r.joursPointes>1?"s":""} pointé${r.joursPointes>1?"s":""}</div></div>
+        <span class="badge actif">${r.tauxAssiduite}%</span>
+      </div>`).join("")}
+    </div>
+  `);
+}
+function fmtMonth(ym){
+  const [y,m] = ym.split("-");
+  const noms = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
+  return `${noms[parseInt(m,10)-1]} ${y}`;
+}
+
+function renderMerite(){
+  const ids = visiblePersonnelIds();
+  const centreLabelMerite = currentCentreFilter === "ALL" ? "tous les centres" : (DB.centres[currentCentreFilter]?.nom || "");
+  const stats = calculerMerite(ids, meriteMonth);
+  const maxActivites = Math.max(1, ...stats.map(s=>s.nbActivites));
+
+  stats.forEach(s=>{
+    const scoreActivite = (s.nbActivites / maxActivites) * 100;
+    s.merite = Math.round(s.tauxAssiduite * 0.4 + scoreActivite * 0.6);
+  });
+  stats.sort((a,b)=> b.merite - a.merite);
+
+  const recentActs = Object.entries(DB.activites)
+    .filter(([id,a])=> ids.includes(a.personnelId) && (activitesVue==="jour" ? a.date===todayISO() : a.date.startsWith(meriteMonth)))
+    .sort((a,b)=> (b[1].createdAt||0)-(a[1].createdAt||0));
+
+  const parDomaine = {};
+  recentActs.forEach(([id,a])=>{ parDomaine[a.domaine] = (parDomaine[a.domaine]||0)+1; });
+  const domaineEntries = Object.entries(parDomaine).sort((a,b)=>b[1]-a[1]);
+  const agentsActifsAuj = new Set(recentActs.map(([id,a])=>a.personnelId)).size;
+
+  document.getElementById("content").innerHTML = `
+    <div class="section-title">Classement mérite</div>
+    <div class="section-sub">Activités réalisées + assiduité, par agent</div>
+    <div class="field" style="margin-bottom:14px;">
+      <span class="icon">🗓️</span>
+      <input type="month" id="meriteMonthInput" value="${meriteMonth}" onchange="meriteMonth=this.value; renderMerite();">
+    </div>
+
+    <div class="card">
+      <h3>🏅 Classement du mois</h3>
+      ${stats.length ? stats.map((s,i)=>{
+        const rankClass = i===0?"gold":i===1?"silver":i===2?"bronze":"";
+        return `<div class="rank-item">
+          <div class="rank-num ${rankClass}">${i+1}</div>
+          <div class="avatar">${initials(s.p.nom,s.p.prenom)}</div>
+          <div class="li-main">
+            <div class="li-name">${s.p.prenom||""} ${s.p.nom||""}</div>
+            <div class="li-sub">${s.nbActivites} activité${s.nbActivites>1?"s":""} · Assiduité ${s.tauxAssiduite}%</div>
+          </div>
+          <div class="rank-score">${s.merite}</div>
+        </div>`;
+      }).join("") : `<div class="empty-state"><div class="ic">🏅</div>Aucune donnée pour ce mois.</div>`}
+    </div>
+
+    <div class="card">
+      <h3>📋 Journal des activités — ${centreLabelMerite}</h3>
+      <div class="chip-row" style="margin-bottom:6px;">
+        <button class="chip ${activitesVue==='jour'?'active':''}" onclick="activitesVue='jour'; renderMerite();">Aujourd'hui</button>
+        <button class="chip ${activitesVue==='mois'?'active':''}" onclick="activitesVue='mois'; renderMerite();">Tout le mois</button>
+      </div>
+      <div class="section-sub" style="margin:2px 0 10px;">${recentActs.length} activité${recentActs.length>1?"s":""} · ${agentsActifsAuj} agent${agentsActifsAuj>1?"s":""} ayant enregistré une activité</div>
+      ${domaineEntries.length ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+        ${domaineEntries.map(([dom,n])=>`<span class="badge actif">${dom} · ${n}</span>`).join("")}
+      </div>` : ""}
+      ${recentActs.length ? recentActs.map(([id,a])=>{
+        const p = DB.personnel[a.personnelId] || {};
+        return `<div class="act-row" onclick="openActiviteDetail('${id}')" style="cursor:pointer;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:700;">${p.prenom||""} ${p.nom||""} <span class="badge actif" style="margin-left:4px;">${a.domaine}</span>${a.signe?` <span title="Confirmé par code PIN" style="color:#1E7C3C;">✅</span>`:""}</div>
+            <div style="color:var(--texte-clair); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${a.description}</div>
+          </div>
+          <div style="color:var(--texte-clair); margin-left:8px;">${fmtDate(a.date)}</div>
+        </div>`;
+      }).join("") : `<div class="empty-state" style="padding:14px;"><div class="ic">📭</div>Aucune activité enregistrée${activitesVue==='jour'?" aujourd'hui":" ce mois-ci"}.</div>`}
+    </div>
+
+    <div class="section-sub" style="text-align:center;">Score mérite = 40% assiduité + 60% volume d'activités (relatif au meilleur agent du mois)</div>
+  `;
+}
+
+/* ---------------------- 16. AIDE CONTEXTUELLE --------------------------------- */
+const HELP_TEXTS = {
+  dashboard: {
+    titre: "🏠 Accueil",
+    html: `<p>Vue d'ensemble du centre : effectifs, présences du jour, alertes.</p>
+      <p>Le sélecteur en haut permet de changer de centre (si vous avez accès à plusieurs).</p>
+      <p>Le bouton ＋ en bas vous amène directement vers l'écran Personnel pour ajouter un agent.</p>`
+  },
+  personnel: {
+    titre: "👥 Personnel",
+    html: `<p>Liste de tous les agents du centre. Touchez un agent pour voir/modifier sa fiche.</p>
+      <p>Dans sa fiche, vous pouvez définir sa <b>catégorie</b> (Fonctionnaire/Contractuel/Volontaire), son <b>code PIN</b> personnel (pour signer ses activités), et imprimer son <b>badge QR</b> (pour le pointage).</p>
+      <p>Utilisez les filtres en haut pour trier par statut ou par catégorie.</p>`
+  },
+  presences: {
+    titre: "🕒 Présences",
+    html: `<p>Le pointage se fait <b>uniquement par scan du badge QR</b> de chaque agent.</p>
+      <p><b>1er scan</b> de la journée = heure d'arrivée. <b>2ᵉ scan</b> = heure de départ.</p>
+      <p>Le statut Présent/Retard est calculé automatiquement selon l'heure d'arrivée.</p>
+      <p>Le bouton "🚫 Marquer absent" reste manuel, pour les absences connues à l'avance (congé, mission...).</p>`
+  },
+  conges: {
+    titre: "📅 Congés & missions",
+    html: `<p>Enregistrez les congés, missions et absences planifiées de vos agents.</p>
+      <p>Touchez ＋ pour créer une nouvelle demande, puis validez-la (approuvée/refusée).</p>`
+  },
+  rapports: {
+    titre: "📊 Rapports",
+    html: `<p>Statistiques du mois sélectionné : taux de présence, temps de travail cumulé (arrivée→départ), répartition par catégorie, détail par agent.</p>
+      <p>Bouton "🖨️ Générer / imprimer le rapport PDF" en bas pour l'exporter.</p>`
+  },
+  merite: {
+    titre: "🏅 Mérite",
+    html: `<p>Classement des agents selon 40% assiduité + 60% volume d'activités du mois.</p>
+      <p>Le <b>Journal des activités</b> liste toutes les activités saisies dans le centre : basculez entre "Aujourd'hui" et "Tout le mois", et repérez les entrées marquées <b>✅</b> (confirmées par le code PIN de l'agent).</p>
+      <p>Touchez ＋ pour ajouter une activité manuellement.</p>`
+  }
+};
+function openHelp(){
+  const h = HELP_TEXTS[currentView] || HELP_TEXTS.dashboard;
+  openModal(`
+    <h2>${h.titre} <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div style="font-size:13.5px; line-height:1.6; color:var(--texte);">${h.html}</div>
+    <button class="btn-primary" style="margin-top:14px;" onclick="closeModal()">Compris</button>
+  `);
+}
+const LS_ONBOARDED = "santerh_gn_onboarded_v1";
+function maybeShowOnboarding(){
+  if(localStorage.getItem(LS_ONBOARDED)) return;
+  openModal(`
+    <h2>👋 Bienvenue sur SantéRH${SESSION && SESSION.nom ? `, ${SESSION.nom}` : ""} <button class="close-x" onclick="closeModal(); localStorage.setItem('${LS_ONBOARDED}','1');">✕</button></h2>
+    <div style="font-size:13.5px; line-height:1.7; color:var(--texte);">
+      <p>Quelques repères avant de commencer :</p>
+      <p>🕒 <b>Présences</b> : le pointage se fait par scan du badge QR de chaque agent (arrivée puis départ).</p>
+      <p>👥 <b>Personnel</b> : gérez les fiches, badges QR et codes PIN de vos agents.</p>
+      <p>🏅 <b>Mérite</b> : suivez toutes les activités du centre dans le Journal.</p>
+      <p>❓ Le bouton d'aide en haut vous explique chaque écran à tout moment.</p>
+    </div>
+    <button class="btn-primary" style="margin-top:14px;" onclick="closeModal(); localStorage.setItem('${LS_ONBOARDED}','1');">C'est parti !</button>
+  `);
+}
+
+/* ---------------------- 17. OUTILS (sauvegarde, audit, mode sombre, exports) --- */
+function openOutils(){
+  openModal(`
+    <h2>⚙️ Outils <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="closeModal(); openDiffusion();">📢 Informer les agents (SMS / WhatsApp)</button>
+    <button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="downloadBackup()">💾 Télécharger une sauvegarde (JSON)</button>
+    <label class="btn-outline" style="width:100%; margin-bottom:10px; display:block; text-align:center; cursor:pointer;">📤 Restaurer une sauvegarde
+      <input type="file" accept="application/json" style="display:none;" onchange="restoreBackup(this)">
+    </label>
+    <button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="openAuditLog()">🧾 Journal d'audit</button>
+    <button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="exportDHIS2CSV()">🔗 Export DHIS2 (CSV, indicateurs RH)</button>
+    <button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="toggleDarkMode()">🌓 Mode sombre : <span id="darkModeStatus">${localStorage.getItem('santerh_gn_dark')==='1'?'Activé':'Désactivé'}</span></button>
+  `);
+}
+
+/* --- Sauvegarde / restauration --- */
+function downloadBackup(){
+  const blob = new Blob([JSON.stringify(DB, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `santerh-sauvegarde-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  logAudit("Sauvegarde téléchargée", "");
+  toast("Sauvegarde téléchargée ✅");
+}
+function restoreBackup(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(!confirm("Restaurer cette sauvegarde remplacera TOUTES les données actuelles. Continuer ?")) { input.value=""; return; }
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      DB = data;
+      ensureDBShape();
+      logAudit("Restauration sauvegarde", file.name);
+      persist();
+      closeModal();
+      toast("Sauvegarde restaurée ✅");
+      renderAll();
+    }catch(err){
+      toast("Fichier invalide — restauration annulée.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* --- Journal d'audit --- */
+function openAuditLog(){
+  const log = (DB.auditLog||[]).slice(0,80);
+  openModal(`
+    <h2>🧾 Journal d'audit <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="section-sub" style="margin-bottom:8px;">${(DB.auditLog||[]).length} action${(DB.auditLog||[]).length>1?"s":""} enregistrée${(DB.auditLog||[]).length>1?"s":""} (80 plus récentes affichées)</div>
+    ${log.length? log.map(e=>`<div class="list-item">
+      <div class="li-main">
+        <div class="li-name">${e.action}</div>
+        <div class="li-sub">${e.details||""} · par ${e.user}</div>
+      </div>
+      <div style="color:var(--texte-clair); font-size:11px; text-align:right;">${new Date(e.ts).toLocaleString("fr-FR")}</div>
+    </div>`).join("") : `<div class="empty-state"><div class="ic">🧾</div>Aucune action enregistrée.</div>`}
+  `);
+}
+
+/* --- Mode sombre --- */
+function toggleDarkMode(){
+  const on = localStorage.getItem("santerh_gn_dark") === "1";
+  localStorage.setItem("santerh_gn_dark", on ? "0" : "1");
+  applyDarkMode();
+  const statusEl = document.getElementById("darkModeStatus");
+  if(statusEl) statusEl.textContent = on ? "Désactivé" : "Activé";
+}
+function applyDarkMode(){
+  document.body.classList.toggle("dark", localStorage.getItem("santerh_gn_dark") === "1");
+}
+
+/* --- Export CSV du rapport mensuel --- */
+function exportRapportCSV(){
+  const ids = visiblePersonnelIds();
+  let csv = "Agent;Poste;Catégorie;Présences;Retards;Absences;Temps travaillé (min)\n";
+  ids.forEach(id=>{
+    const p = DB.personnel[id];
+    let pr=0,ab=0,re=0,mins=0;
+    Object.entries(DB.presences).forEach(([date,dayData])=>{
+      if(!date.startsWith(rapportMonth)) return;
+      const s = presenceStatut(dayData[id]);
+      if(s==="present") pr++; else if(s==="absent") ab++; else if(s==="retard") re++;
+      mins += dureeMinutes(dayData[id]);
+    });
+    csv += `"${p.prenom||""} ${p.nom||""}";"${p.poste||""}";"${categorieLabel(p.categorie).txt}";${pr};${re};${ab};${mins}\n`;
+  });
+  downloadTextFile(`rapport-${rapportMonth}.csv`, csv);
+  logAudit("Export CSV rapport", rapportMonth);
+  toast("Export CSV téléchargé ✅");
+}
+
+/* --- Export DHIS2 (mapping de départ à ajuster avec les vrais UID de dataElement) --- */
+function exportDHIS2CSV(){
+  const ids = visiblePersonnelIds();
+  let pr=0, ab=0, re=0;
+  Object.entries(DB.presences).forEach(([date,dayData])=>{
+    if(!date.startsWith(rapportMonth)) return;
+    Object.entries(dayData).forEach(([pid,entry])=>{
+      if(!ids.includes(pid)) return;
+      const s = presenceStatut(entry);
+      if(s==="present") pr++; else if(s==="absent") ab++; else if(s==="retard") re++;
+    });
+  });
+  let csv = "dataElement;period;orgUnit;value\n";
+  csv += `"RH_AGENTS_ACTIFS";"${rapportMonth.replace('-','')}";"${DB.centres[currentCentreFilter]?.nom||'DISTRICT'}";${ids.length}\n`;
+  csv += `"RH_PRESENCES";"${rapportMonth.replace('-','')}";"${DB.centres[currentCentreFilter]?.nom||'DISTRICT'}";${pr}\n`;
+  csv += `"RH_RETARDS";"${rapportMonth.replace('-','')}";"${DB.centres[currentCentreFilter]?.nom||'DISTRICT'}";${re}\n`;
+  csv += `"RH_ABSENCES";"${rapportMonth.replace('-','')}";"${DB.centres[currentCentreFilter]?.nom||'DISTRICT'}";${ab}\n`;
+  downloadTextFile(`dhis2-rh-${rapportMonth}.csv`, csv);
+  logAudit("Export DHIS2 CSV", rapportMonth);
+  toast("⚠️ Codes dataElement génériques — à remplacer par les UID réels de votre instance DHIS2.");
+}
+function downloadTextFile(filename, content){
+  const blob = new Blob([content], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* --- Recherche globale --- */
+function openGlobalSearch(){
+  openModal(`
+    <h2>🔍 Recherche globale <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <input type="text" id="globalSearchInput" placeholder="Nom d'agent, activité, congé..." style="width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--gris-bord); font-size:14px; margin-bottom:12px;" oninput="runGlobalSearch(this.value)" autofocus>
+    <div id="globalSearchResults"><div class="section-sub">Tapez au moins 2 caractères...</div></div>
+  `);
+}
+function runGlobalSearch(q){
+  const box = document.getElementById("globalSearchResults");
+  q = (q||"").trim().toLowerCase();
+  if(q.length < 2){ box.innerHTML = `<div class="section-sub">Tapez au moins 2 caractères...</div>`; return; }
+  const ids = visiblePersonnelIds();
+  const agents = ids.map(id=>DB.personnel[id]).filter(p=>`${p.nom} ${p.prenom} ${p.poste||""}`.toLowerCase().includes(q));
+  const acts = Object.entries(DB.activites).filter(([id,a])=> ids.includes(a.personnelId) && `${a.description} ${a.domaine}`.toLowerCase().includes(q));
+  const conges = Object.entries(DB.conges).filter(([id,c])=> ids.includes(c.personnelId) && `${c.type} ${c.motif||""}`.toLowerCase().includes(q));
+  let html = "";
+  if(agents.length) html += `<div class="section-sub" style="margin-top:4px;">👥 Agents (${agents.length})</div>` +
+    agents.map(p=>`<div class="list-item" onclick="closeModal(); showView('personnel'); setTimeout(()=>openPersonnelForm('${Object.keys(DB.personnel).find(k=>DB.personnel[k]===p)}'),50);"><div class="li-main"><div class="li-name">${p.prenom} ${p.nom}</div><div class="li-sub">${p.poste||""}</div></div></div>`).join("");
+  if(acts.length) html += `<div class="section-sub" style="margin-top:10px;">📋 Activités (${acts.length})</div>` +
+    acts.slice(0,20).map(([id,a])=>{const p=DB.personnel[a.personnelId]||{}; return `<div class="list-item" onclick="closeModal(); openActiviteDetail('${id}')"><div class="li-main"><div class="li-name">${p.prenom||""} ${p.nom||""} · ${a.domaine}</div><div class="li-sub">${a.description}</div></div></div>`;}).join("");
+  if(conges.length) html += `<div class="section-sub" style="margin-top:10px;">📅 Congés/missions (${conges.length})</div>` +
+    conges.slice(0,20).map(([id,c])=>{const p=DB.personnel[c.personnelId]||{}; return `<div class="list-item" onclick="closeModal(); openCongeDetail('${id}')"><div class="li-main"><div class="li-name">${p.prenom||""} ${p.nom||""} · ${c.type}</div><div class="li-sub">${fmtDate(c.dateDebut)} → ${fmtDate(c.dateFin)}</div></div></div>`;}).join("");
+  box.innerHTML = html || `<div class="empty-state" style="padding:14px;"><div class="ic">🔍</div>Aucun résultat.</div>`;
+}
+
+/* --- Diffusion d'informations (SMS / WhatsApp) --- */
+const MODELES_MESSAGES = {
+  pointage: "Bonjour {prenom}, merci de penser à scanner votre badge à l'arrivée et au départ aujourd'hui.",
+  reunion: "Bonjour {prenom}, une réunion de coordination est prévue au centre. Merci de confirmer votre présence.",
+  pin: "Bonjour {prenom}, merci de passer configurer votre code PIN personnel dans l'application pour signer vos activités.",
+  conge: "Bonjour {prenom}, pour rappel concernant votre congé/mission en cours, merci de me contacter si besoin.",
+  diplome: "Bonjour {prenom}, l'un de vos diplômes/certifications arrive bientôt à expiration. Merci de fournir une copie à jour.",
+  libre: ""
+};
+function openDiffusion(){
+  const ids = visiblePersonnelIds().filter(id=>DB.personnel[id].statut!=="inactif");
+  openModal(`
+    <h2>📢 Informer les agents <button class="close-x" onclick="closeModal()">✕</button></h2>
+    <div class="form-group"><label>Destinataires</label>
+      <select id="dif_filtre" onchange="renderDiffusionListe()">
+        <option value="tous">Tous les agents actifs (${ids.length})</option>
+        <option value="nonPointes">Non pointés aujourd'hui</option>
+        <option value="sansPin">Sans code PIN</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Modèle de message</label>
+      <select id="dif_modele" onchange="appliquerModele()">
+        <option value="libre">✏️ Message libre</option>
+        <option value="pointage">⏱️ Rappel de pointage</option>
+        <option value="reunion">📅 Convocation réunion</option>
+        <option value="pin">🔑 Rappel configuration PIN</option>
+        <option value="conge">🗓️ Rappel congé/mission</option>
+        <option value="diplome">🎓 Rappel diplôme à renouveler</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Message (utilisez {prenom} — remplacé automatiquement pour chaque agent)</label>
+      <textarea id="dif_message" placeholder="Ex : Bonjour {prenom}, réunion de coordination demain à 9h au centre." oninput="renderDiffusionListe()"></textarea>
+    </div>
+    <div class="section-sub" style="margin:6px 0;">Touchez WhatsApp ou SMS sur chaque agent pour envoyer — l'envoi groupé automatique n'est pas possible depuis un navigateur, mais chaque envoi ne prend que 2 taps.</div>
+    <div id="dif_liste"></div>
+  `);
+  renderDiffusionListe();
+}
+function appliquerModele(){
+  const cle = document.getElementById("dif_modele").value;
+  document.getElementById("dif_message").value = MODELES_MESSAGES[cle] || "";
+  renderDiffusionListe();
+}
+function renderDiffusionListe(){
+  const box = document.getElementById("dif_liste");
+  if(!box) return;
+  const filtre = document.getElementById("dif_filtre").value;
+  const messageBrut = document.getElementById("dif_message").value.trim();
+  const todayP = DB.presences[todayISO()] || {};
+  let ids = visiblePersonnelIds().filter(id=>DB.personnel[id].statut!=="inactif");
+  if(filtre==="nonPointes") ids = ids.filter(id=>!presenceStatut(todayP[id]));
+  else if(filtre==="sansPin") ids = ids.filter(id=>!DB.personnel[id].pin);
+
+  box.innerHTML = ids.length ? ids.map(id=>{
+    const p = DB.personnel[id];
+    const base = messageBrut || "Bonjour {prenom}, ";
+    const msg = base.replace(/\{prenom\}/g, p.prenom||"");
+    return `<div class="list-item">
+      <div class="avatar" style="${p.photo?`background-image:url('${p.photo}'); background-size:cover;`:""}">${p.photo?"":initials(p.nom,p.prenom)}</div>
+      <div class="li-main">
+        <div class="li-name">${p.prenom||""} ${p.nom||""}</div>
+        <div class="li-sub">${p.telephone||"Pas de numéro enregistré"}</div>
+      </div>
+      ${p.telephone?`<div style="display:flex; gap:6px;">
+        <button class="btn-icon" title="WhatsApp" onclick="envoyerWhatsApp('${p.telephone}', ${JSON.stringify(msg)})">💬</button>
+        <button class="btn-icon" title="SMS" onclick="envoyerSMS('${p.telephone}', ${JSON.stringify(msg)})">✉️</button>
+      </div>`:""}
+    </div>`;
+  }).join("") : `<div class="empty-state" style="padding:14px;"><div class="ic">📭</div>Aucun agent dans ce filtre.</div>`;
+}
+
+/* ---------------------- 18. INITIALISATION ------------------------------------ */
+function init(){
+  loadLocal();
+  seedIfEmpty();
+  listenFirebase();
+  setSyncStatus(FIREBASE_ON);
+  applyDarkMode();
+
+  const saved = localStorage.getItem(LS_SESSION);
+  if(saved){
+    SESSION = JSON.parse(saved);
+    enterApp();
+  }
+}
+window.addEventListener("load", init);
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch((e) => console.warn("SW non enregistré :", e));
+  });
+}
+</script>
+</body>
+</html>
