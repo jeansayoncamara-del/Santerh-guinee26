@@ -3,8 +3,8 @@ const CACHE_NAME = "santerh-cache-v1";
 const FILES_TO_CACHE = [
   "./SanteRH-Guinee.html",
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./icon-192-2.png",
+  "./icon-512-2.png"
 ];
 
 self.addEventListener("install", (event) => {
