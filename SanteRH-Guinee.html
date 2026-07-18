@@ -6,8 +6,8 @@
 <title>SantéRH Guinée</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1E7C3C">
-<link rel="icon" href="icon-192-2.png">
-<link rel="apple-touch-icon" href="icon-192-2.png">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SantéRH">
@@ -585,16 +585,28 @@ function formatTelGN(tel){
   if(t.startsWith("224")) return "+"+t;
   return "+224"+t.replace(/^0+/,""); // numéro local guinéen sans indicatif
 }
+function ouvrirLienExterne(url){
+  // Dans une PWA installée (mode standalone), window.open() est souvent bloqué
+  // silencieusement. Un vrai clic sur un <a> est beaucoup plus fiable pour
+  // déclencher WhatsApp, SMS, tel:, etc.
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 function envoyerWhatsApp(tel, message){
   const t = formatTelGN(tel);
   if(!t){ toast("Numéro de téléphone manquant pour cet agent."); return; }
-  window.open(`https://wa.me/${t.replace("+","")}?text=${encodeURIComponent(message)}`, "_blank");
+  ouvrirLienExterne(`https://wa.me/${t.replace("+","")}?text=${encodeURIComponent(message)}`);
   logAudit("Message WhatsApp envoyé", t);
 }
 function envoyerSMS(tel, message){
   const t = formatTelGN(tel);
   if(!t){ toast("Numéro de téléphone manquant pour cet agent."); return; }
-  window.location.href = `sms:${t}?body=${encodeURIComponent(message)}`;
+  ouvrirLienExterne(`sms:${t}?body=${encodeURIComponent(message)}`);
   logAudit("Message SMS envoyé", t);
 }
 function logAudit(action, details){
