@@ -1,7 +1,7 @@
 {
   "name": "SantéRH Guinée",
   "short_name": "SantéRH",
-  "description": "Gestion RH des centres de santé - District de Mandiana",
+  "description": "Gestion RH des centres de santé, postes de santé et hôpitaux - District ",
   "start_url": "./SanteRH-Guinee.html",
   "scope": "./",
   "display": "standalone",
