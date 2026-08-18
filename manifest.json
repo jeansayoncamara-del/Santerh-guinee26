@@ -4,6 +4,7 @@
   "description": "Gestion RH des centres de santé, postes de santé et hôpitaux - District ",
   "start_url": "./SanteRH-Guinee.html",
   "scope": "./",
+  "id": "./SanteRH-Guinee.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F4F6F5",
