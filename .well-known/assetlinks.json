@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.jeansayoncamara_del.twa",
+    "sha256_cert_fingerprints": ["FD:9D:05:94:96:9D:D4:10:0A:AB:42:E4:E7:2C:38:6C:08:AE:CB:4F:34:1B:9A:C3:E7:68:E8:CC:AC:3F:16:3F"]
+  }
+}]
