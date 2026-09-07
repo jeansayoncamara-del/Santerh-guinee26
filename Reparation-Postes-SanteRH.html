@@ -43,10 +43,13 @@
   <input id="centreId" value="ms0r8q9983epu4">
   <button id="btnScan">Analyser les fiches agents</button>
   <button id="btnDiag" style="background:#334155; margin-top:6px;">📋 Diagnostic complet (voir tous les agents, poste par poste)</button>
+  <button id="btnMouvements" style="background:#334155; margin-top:6px;">🕵️ Chercher les agents disparus via l'historique des mouvements</button>
   <div id="scanStatus"></div>
 </div>
 
+<div id="mvWrap"></div>
 <div id="diagWrap"></div>
+<div id="sansPosteWrap"></div>
 <div id="groupsWrap"></div>
 
 <div class="card" id="applyCard" style="display:none;">
@@ -159,6 +162,63 @@ window.__setNewValue = (sel) => {
   groupesOrphelins[oldId].newValue = sel.value;
 };
 
+document.getElementById("btnMouvements").onclick = async () => {
+  const centreId = document.getElementById("centreId").value.trim();
+  const statusEl = document.getElementById("scanStatus");
+  const mvWrap = document.getElementById("mvWrap");
+  statusEl.className = "status info";
+  statusEl.textContent = "Lecture de l'historique des mouvements…";
+  try {
+    const [mvSnap, personnelSnap, postesSnap] = await Promise.all([
+      get(ref(db, "santerh/mouvements")),
+      get(ref(db, "santerh/personnel")),
+      get(ref(db, `santerh/centres/${centreId}/postesSante`))
+    ]);
+    const mouvements = mvSnap.val() || {};
+    const personnel = personnelSnap.val() || {};
+    const postes = postesSnap.val() || {};
+
+    // Mouvements liés à ce centre, dont l'agent n'a PLUS de fiche personnel du tout
+    // (fiche perdue) — regroupés par poste (avant ou après) tel qu'enregistré à l'époque.
+    const disparus = {}; // clé = poste (ID brut ou nom résolu), valeur = Map(agentNom -> dernier mouvement)
+    Object.values(mouvements).forEach(m => {
+      if (m.centreAvantId !== centreId && m.centreApresId !== centreId) return;
+      if (personnel[m.personnelId]) return; // fiche existe encore, pas concerné
+      const posteId = m.posteApresId || m.posteAvantId;
+      const label = posteId ? (postes[posteId]?.nom || "ID inconnu : " + posteId) : "Sans poste précisé";
+      if (!disparus[label]) disparus[label] = new Map();
+      const prev = disparus[label].get(m.agentNom);
+      if (!prev || (m.ts||0) > (prev.ts||0)) disparus[label].set(m.agentNom, m);
+    });
+
+    const entries = Object.entries(disparus);
+    if (!entries.length) {
+      statusEl.className = "status ok";
+      statusEl.textContent = "Aucune trace d'agent disparu trouvée dans l'historique des mouvements pour ce centre.";
+      mvWrap.innerHTML = "";
+      return;
+    }
+    const total = entries.reduce((s,[,map]) => s + map.size, 0);
+    statusEl.className = "status ok";
+    statusEl.textContent = `${total} agent(s) disparu(s) retrouvé(s) via l'historique.`;
+
+    mvWrap.innerHTML = `<div class="card"><h3 style="margin-top:0;">🕵️ Agents disparus (trace dans l'historique) — ${total}</h3>` +
+      entries.sort((a,b)=>a[0].localeCompare(b[0])).map(([label, map]) => `
+        <div class="grp">
+          <div style="font-weight:600; margin-bottom:4px;">${label} <span class="count">${map.size}</span></div>
+          <div class="agents">${[...map.keys()].join(", ")}</div>
+        </div>
+      `).join("") +
+      `<div class="sub" style="margin-top:8px;">Ces agents n'ont plus de fiche du tout — ce ne sont pas des identifiants à corriger, mais des fiches à recréer manuellement (comme pour les comptes chef de poste après l'incident).</div></div>`;
+  } catch (e) {
+    statusEl.className = "status err";
+    statusEl.textContent = "Erreur : " + e.message;
+  }
+};
+
+let sansPosteAgents = []; // {id, nom, prenom, newValue}
+let postesSanteDiag = {};
+
 document.getElementById("btnDiag").onclick = async () => {
   const centreId = document.getElementById("centreId").value.trim();
   const statusEl = document.getElementById("scanStatus");
@@ -172,10 +232,12 @@ document.getElementById("btnDiag").onclick = async () => {
     ]);
     const personnel = personnelSnap.val() || {};
     const postes = postesSnap.val() || {};
+    postesSanteDiag = postes;
 
     // Regroupe TOUS les agents du centre par situation : poste valide connu,
     // sans poste du tout (rattaché centre direct), ou ancien ID orphelin.
-    const buckets = {}; // clé = nom lisible du groupe, valeur = liste d'agents
+    const buckets = {}; // clé = nom lisible du groupe, valeur = liste de {id,nom,prenom}
+    sansPosteAgents = [];
     let totalCentre = 0;
 
     Object.entries(personnel).forEach(([id, p]) => {
@@ -184,6 +246,7 @@ document.getElementById("btnDiag").onclick = async () => {
       let cle;
       if (!p.posteSanteId) {
         cle = "🏥 Sans poste (rattaché directement au centre)";
+        sansPosteAgents.push({ id, nom: p.nom, prenom: p.prenom, newValue: "" });
       } else if (postes[p.posteSanteId]) {
         cle = "✅ " + (postes[p.posteSanteId].nom || p.posteSanteId);
       } else {
@@ -196,11 +259,12 @@ document.getElementById("btnDiag").onclick = async () => {
     statusEl.className = "status ok";
     statusEl.textContent = `${totalCentre} agent(s) au total pour ce centre.`;
 
-    const ordered = Object.entries(buckets).sort((a,b) => {
-      // Postes valides d'abord (alpha), puis orphelins, puis sans poste
-      const rank = k => k.startsWith("✅") ? 0 : k.startsWith("⚠️") ? 1 : 2;
-      return rank(a[0]) - rank(b[0]) || a[0].localeCompare(b[0]);
-    });
+    const ordered = Object.entries(buckets)
+      .filter(([cle]) => !cle.startsWith("🏥"))
+      .sort((a,b) => {
+        const rank = k => k.startsWith("✅") ? 0 : 1;
+        return rank(a[0]) - rank(b[0]) || a[0].localeCompare(b[0]);
+      });
 
     diagWrap.innerHTML = `<div class="card"><h3 style="margin-top:0;">Diagnostic complet — ${totalCentre} agent(s)</h3>` +
       ordered.map(([cle, noms]) => `
@@ -209,11 +273,66 @@ document.getElementById("btnDiag").onclick = async () => {
           <div class="agents">${noms.join(", ")}</div>
         </div>
       `).join("") + `</div>`;
+
+    if (sansPosteAgents.length) {
+      renderSansPoste();
+    }
   } catch (e) {
     statusEl.className = "status err";
     statusEl.textContent = "Erreur : " + e.message;
   }
 };
+
+function renderSansPoste() {
+  const options = Object.entries(postesSanteDiag)
+    .sort((a,b)=>(a[1].nom||"").localeCompare(b[1].nom||""))
+    .map(([pid,ps]) => `<option value="${pid}">${ps.nom||pid}</option>`).join("");
+
+  const wrap = document.getElementById("sansPosteWrap");
+  wrap.innerHTML = `<div class="card">
+    <h3 style="margin-top:0;">🏥 Sans poste — ${sansPosteAgents.length} agent(s) à assigner (ou laisser au centre)</h3>
+    <div class="sub" style="margin-top:0;">Pour chaque agent, choisis son vrai poste s'il en a un, ou laisse « Rattaché au centre » si c'est correct tel quel.</div>
+    ${sansPosteAgents.map((a, i) => `
+      <div class="grp">
+        <div style="font-weight:600;">${a.prenom||""} ${a.nom||""}</div>
+        <select data-idx="${i}" onchange="window.__setSansPosteValue(this)">
+          <option value="">— Rattaché au centre (ne pas changer) —</option>
+          ${options}
+        </select>
+      </div>
+    `).join("")}
+    <button id="btnApplySansPoste">✅ Appliquer ces assignations</button>
+    <div id="sansPosteStatus"></div>
+  </div>`;
+
+  document.getElementById("btnApplySansPoste").onclick = applySansPoste;
+}
+
+window.__setSansPosteValue = (sel) => {
+  sansPosteAgents[+sel.dataset.idx].newValue = sel.value;
+};
+
+async function applySansPoste() {
+  const statusEl = document.getElementById("sansPosteStatus");
+  const toApply = sansPosteAgents.filter(a => a.newValue);
+  if (!toApply.length) {
+    statusEl.className = "status err";
+    statusEl.textContent = "Aucune assignation choisie — sélectionne au moins un poste pour un agent.";
+    return;
+  }
+  statusEl.className = "status info";
+  statusEl.textContent = "Application en cours…";
+  const updates = {};
+  toApply.forEach(a => { updates[`santerh/personnel/${a.id}/posteSanteId`] = a.newValue; });
+  try {
+    await update(ref(db), updates);
+    statusEl.className = "status ok";
+    statusEl.textContent = `✅ ${toApply.length} agent(s) assigné(s) à leur poste.`;
+  } catch (e) {
+    statusEl.className = "status err";
+    statusEl.textContent = "Erreur : " + e.message;
+  }
+}
 
 document.getElementById("btnApply").onclick = async () => {
   const statusEl = document.getElementById("applyStatus");
