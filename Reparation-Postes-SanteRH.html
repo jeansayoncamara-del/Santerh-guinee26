@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réparation des postes — SantéRH Guinée</title>
+<style>
+  body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:16px;}
+  h1{font-size:18px;margin:0 0 4px;}
+  .sub{color:#94a3b8;font-size:13px;margin-bottom:16px;}
+  .card{background:#1e293b;border-radius:12px;padding:14px;margin-bottom:12px;}
+  label{display:block;font-size:13px;margin:8px 0 4px;color:#cbd5e1;}
+  input,select,button{width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:15px;}
+  button{background:#2563eb;border:none;font-weight:600;cursor:pointer;margin-top:10px;}
+  button:disabled{background:#334155;cursor:not-allowed;}
+  button.danger{background:#dc2626;}
+  .grp{border:1px solid #334155;border-radius:10px;padding:10px;margin-bottom:10px;}
+  .grp .oldid{font-family:monospace;font-size:12px;color:#f59e0b;word-break:break-all;}
+  .grp .agents{font-size:13px;color:#cbd5e1;margin:6px 0;}
+  .status{font-size:13px;margin-top:10px;padding:8px;border-radius:8px;}
+  .status.ok{background:#065f46;}
+  .status.err{background:#7f1d1d;}
+  .status.info{background:#1e3a8a;}
+  .count{display:inline-block;background:#334155;border-radius:6px;padding:1px 6px;font-size:11px;margin-left:6px;}
+</style>
+</head>
+<body>
+
+<h1>🔧 Réparation des postes — SantéRH Guinée</h1>
+<div class="sub">Corrige en masse les fiches agents dont le poste de santé pointe vers un ancien identifiant disparu.</div>
+
+<div class="card" id="loginCard">
+  <label>Email (compte Éditeur)</label>
+  <input id="email" type="email" placeholder="jeansayoncamara@gmail.com" autocomplete="username">
+  <label>Mot de passe</label>
+  <input id="password" type="password" autocomplete="current-password">
+  <button id="btnLogin">Se connecter</button>
+  <div id="loginStatus"></div>
+</div>
+
+<div class="card" id="centreCard" style="display:none;">
+  <label>ID du centre à réparer</label>
+  <input id="centreId" value="ms0r8q9983epu4">
+  <button id="btnScan">Analyser les fiches agents</button>
+  <div id="scanStatus"></div>
+</div>
+
+<div id="groupsWrap"></div>
+
+<div class="card" id="applyCard" style="display:none;">
+  <button id="btnApply">✅ Appliquer les corrections</button>
+  <div id="applyStatus"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCAnYxH3FJ-ZI8TC2Ioyj_ayFGeEV3la2E",
+  authDomain: "santerhguinee.firebaseapp.com",
+  databaseURL: "https://santerhguinee-default-rtdb.firebaseio.com",
+  projectId: "santerhguinee",
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let personnelData = {};
+let postesSanteActuels = {};
+let groupesOrphelins = {}; // oldId -> {agents:[{id,nom,prenom}], newValue:null}
+
+document.getElementById("btnLogin").onclick = async () => {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const statusEl = document.getElementById("loginStatus");
+  statusEl.className = "status info";
+  statusEl.textContent = "Connexion en cours…";
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    statusEl.className = "status ok";
+    statusEl.textContent = "Connecté.";
+    document.getElementById("centreCard").style.display = "block";
+  } catch (e) {
+    statusEl.className = "status err";
+    statusEl.textContent = "Erreur de connexion : " + e.message;
+  }
+};
+
+document.getElementById("btnScan").onclick = async () => {
+  const centreId = document.getElementById("centreId").value.trim();
+  const statusEl = document.getElementById("scanStatus");
+  statusEl.className = "status info";
+  statusEl.textContent = "Lecture de la base…";
+  try {
+    const [personnelSnap, postesSnap] = await Promise.all([
+      get(ref(db, "santerh/personnel")),
+      get(ref(db, `santerh/centres/${centreId}/postesSante`))
+    ]);
+    personnelData = personnelSnap.val() || {};
+    postesSanteActuels = postesSnap.val() || {};
+
+    const postesIdsValides = new Set(Object.keys(postesSanteActuels));
+    groupesOrphelins = {};
+
+    Object.entries(personnelData).forEach(([id, p]) => {
+      if (p.centreId !== centreId) return;
+      if (!p.posteSanteId) return; // agent rattaché directement au centre, pas à un poste — pas concerné
+      if (postesIdsValides.has(p.posteSanteId)) return; // déjà correct
+      if (!groupesOrphelins[p.posteSanteId]) groupesOrphelins[p.posteSanteId] = { agents: [], newValue: "" };
+      groupesOrphelins[p.posteSanteId].agents.push({ id, nom: p.nom, prenom: p.prenom });
+    });
+
+    const nGroupes = Object.keys(groupesOrphelins).length;
+    if (nGroupes === 0) {
+      statusEl.className = "status ok";
+      statusEl.textContent = "Aucune fiche orpheline trouvée — tout est déjà correct.";
+      document.getElementById("groupsWrap").innerHTML = "";
+      document.getElementById("applyCard").style.display = "none";
+      return;
+    }
+    statusEl.className = "status ok";
+    const totalAgents = Object.values(groupesOrphelins).reduce((s,g)=>s+g.agents.length,0);
+    statusEl.textContent = `${nGroupes} ancien(s) identifiant(s) trouvé(s), touchant ${totalAgents} agent(s) au total.`;
+
+    renderGroupes();
+    document.getElementById("applyCard").style.display = "block";
+  } catch (e) {
+    statusEl.className = "status err";
+    statusEl.textContent = "Erreur : " + e.message;
+  }
+};
+
+function renderGroupes() {
+  const wrap = document.getElementById("groupsWrap");
+  const options = Object.entries(postesSanteActuels)
+    .sort((a,b)=>(a[1].nom||"").localeCompare(b[1].nom||""))
+    .map(([pid,ps]) => `<option value="${pid}">${ps.nom||pid}</option>`).join("");
+
+  wrap.innerHTML = Object.entries(groupesOrphelins).map(([oldId, g]) => `
+    <div class="grp">
+      <div class="oldid">Ancien ID : ${oldId}<span class="count">${g.agents.length} agent(s)</span></div>
+      <div class="agents">${g.agents.slice(0,5).map(a=>`${a.prenom||""} ${a.nom||""}`).join(", ")}${g.agents.length>5?"…":""}</div>
+      <label>Ce groupe correspond à quel poste actuel ?</label>
+      <select data-oldid="${oldId}" onchange="window.__setNewValue(this)">
+        <option value="">— Choisir —</option>
+        ${options}
+        <option value="__CENTRE__">Aucun — rattacher directement au centre (pas à un poste)</option>
+      </select>
+    </div>
+  `).join("");
+}
+
+window.__setNewValue = (sel) => {
+  const oldId = sel.dataset.oldid;
+  groupesOrphelins[oldId].newValue = sel.value;
+};
+
+document.getElementById("btnApply").onclick = async () => {
+  const statusEl = document.getElementById("applyStatus");
+  const entries = Object.entries(groupesOrphelins);
+  const nonChoisis = entries.filter(([,g]) => !g.newValue);
+  if (nonChoisis.length) {
+    statusEl.className = "status err";
+    statusEl.textContent = `Choisis un poste pour chaque groupe avant d'appliquer (${nonChoisis.length} restant(s)).`;
+    return;
+  }
+  statusEl.className = "status info";
+  statusEl.textContent = "Application des corrections…";
+
+  const updates = {};
+  let n = 0;
+  entries.forEach(([oldId, g]) => {
+    const newVal = g.newValue === "__CENTRE__" ? null : g.newValue;
+    g.agents.forEach(a => {
+      updates[`santerh/personnel/${a.id}/posteSanteId`] = newVal;
+      n++;
+    });
+  });
+
+  try {
+    await update(ref(db), updates);
+    statusEl.className = "status ok";
+    statusEl.textContent = `✅ ${n} fiche(s) corrigée(s). Rouvre l'app SantéRH pour vérifier.`;
+    document.getElementById("btnApply").disabled = true;
+  } catch (e) {
+    statusEl.className = "status err";
+    statusEl.textContent = "Erreur lors de l'écriture : " + e.message;
+  }
+};
+</script>
+</body>
+</html>
