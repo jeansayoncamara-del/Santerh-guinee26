@@ -42,9 +42,11 @@
   <label>ID du centre à réparer</label>
   <input id="centreId" value="ms0r8q9983epu4">
   <button id="btnScan">Analyser les fiches agents</button>
+  <button id="btnDiag" style="background:#334155; margin-top:6px;">📋 Diagnostic complet (voir tous les agents, poste par poste)</button>
   <div id="scanStatus"></div>
 </div>
 
+<div id="diagWrap"></div>
 <div id="groupsWrap"></div>
 
 <div class="card" id="applyCard" style="display:none;">
@@ -155,6 +157,62 @@ function renderGroupes() {
 window.__setNewValue = (sel) => {
   const oldId = sel.dataset.oldid;
   groupesOrphelins[oldId].newValue = sel.value;
+};
+
+document.getElementById("btnDiag").onclick = async () => {
+  const centreId = document.getElementById("centreId").value.trim();
+  const statusEl = document.getElementById("scanStatus");
+  const diagWrap = document.getElementById("diagWrap");
+  statusEl.className = "status info";
+  statusEl.textContent = "Lecture complète de la base…";
+  try {
+    const [personnelSnap, postesSnap] = await Promise.all([
+      get(ref(db, "santerh/personnel")),
+      get(ref(db, `santerh/centres/${centreId}/postesSante`))
+    ]);
+    const personnel = personnelSnap.val() || {};
+    const postes = postesSnap.val() || {};
+
+    // Regroupe TOUS les agents du centre par situation : poste valide connu,
+    // sans poste du tout (rattaché centre direct), ou ancien ID orphelin.
+    const buckets = {}; // clé = nom lisible du groupe, valeur = liste d'agents
+    let totalCentre = 0;
+
+    Object.entries(personnel).forEach(([id, p]) => {
+      if (p.centreId !== centreId) return;
+      totalCentre++;
+      let cle;
+      if (!p.posteSanteId) {
+        cle = "🏥 Sans poste (rattaché directement au centre)";
+      } else if (postes[p.posteSanteId]) {
+        cle = "✅ " + (postes[p.posteSanteId].nom || p.posteSanteId);
+      } else {
+        cle = "⚠️ Ancien ID orphelin : " + p.posteSanteId;
+      }
+      if (!buckets[cle]) buckets[cle] = [];
+      buckets[cle].push(`${p.prenom||""} ${p.nom||""}`.trim());
+    });
+
+    statusEl.className = "status ok";
+    statusEl.textContent = `${totalCentre} agent(s) au total pour ce centre.`;
+
+    const ordered = Object.entries(buckets).sort((a,b) => {
+      // Postes valides d'abord (alpha), puis orphelins, puis sans poste
+      const rank = k => k.startsWith("✅") ? 0 : k.startsWith("⚠️") ? 1 : 2;
+      return rank(a[0]) - rank(b[0]) || a[0].localeCompare(b[0]);
+    });
+
+    diagWrap.innerHTML = `<div class="card"><h3 style="margin-top:0;">Diagnostic complet — ${totalCentre} agent(s)</h3>` +
+      ordered.map(([cle, noms]) => `
+        <div class="grp">
+          <div style="font-weight:600; margin-bottom:4px;">${cle} <span class="count">${noms.length}</span></div>
+          <div class="agents">${noms.join(", ")}</div>
+        </div>
+      `).join("") + `</div>`;
+  } catch (e) {
+    statusEl.className = "status err";
+    statusEl.textContent = "Erreur : " + e.message;
+  }
 };
 
 document.getElementById("btnApply").onclick = async () => {
