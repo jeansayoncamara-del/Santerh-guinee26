@@ -102,11 +102,16 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           ./gradlew assembleDebug --no-daemon --stacktrace
           cp app/build/outputs/apk/debug/app-debug.apk ../../SanteRH-agent.apk
+          # Copie ZIP : certains téléphones (Chrome) bloquent le téléchargement des .apk à 100 %.
+          # Un .zip est téléchargé normalement ; on l'ouvre ensuite dans « Fichiers » pour installer l'APK.
+          cd ../.. && zip -j SanteRH-agent.zip SanteRH-agent.apk
 
       - name: Publier l'APK (Releases)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-${{ github.run_number }}
           name: SantéRH — APK n° ${{ github.run_number }}
-          body: APK de SantéRH avec pointage automatique des agents. Téléchargez SanteRH-agent.apk ci-dessous.
-          files: SanteRH-agent.apk
+          body: APK de SantéRH avec pointage automatique des agents. Téléchargez SanteRH-agent.apk ci-dessous. Si le téléchargement de l'APK reste bloqué, prenez SanteRH-agent.zip, ouvrez-le dans « Fichiers » et touchez l'APK qu'il contient.
+          files: |
+            SanteRH-agent.apk
+            SanteRH-agent.zip
