@@ -1,0 +1,107 @@
+# Construit l'APK Android de SantéRH (pointage automatique des agents)
+# à partir de SanteRH-Guinee.html, sur les serveurs de GitHub.
+# L'APK est publié dans « Releases » du dépôt.
+name: Construire l'APK SantéRH
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'SanteRH-Guinee.html'
+      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Récupérer les fichiers du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Installer Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Installer le SDK Android
+        uses: android-actions/setup-android@v3
+
+      - name: Préparer le projet Capacitor
+        run: |
+          test -f SanteRH-Guinee.html || { echo "::error::SanteRH-Guinee.html introuvable à la racine du dépôt"; exit 1; }
+          mkdir -p app/www
+          for f in *; do [ "$f" != "app" ] && cp -r "$f" app/www/; done
+          cp SanteRH-Guinee.html app/www/index.html
+          cd app
+          echo '{"name":"santerh-agent","version":"1.0.0","private":true}' > package.json
+          npm install --no-audit --no-fund --legacy-peer-deps @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 @capacitor-community/background-geolocation@^1.2.26
+          cat > capacitor.config.json <<'JSON'
+          {
+            "appId": "org.santerhguinee.agent",
+            "appName": "SantéRH",
+            "webDir": "www",
+            "android": { "useLegacyBridge": true }
+          }
+          JSON
+          npx cap add android
+
+      - name: Permissions Android (localisation, service, notifications)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = 'android/app/src/main/AndroidManifest.xml'
+          s = open(p, encoding='utf-8').read()
+          perms = ['INTERNET', 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'FOREGROUND_SERVICE',
+                   'FOREGROUND_SERVICE_LOCATION', 'POST_NOTIFICATIONS', 'CAMERA']
+          ajout = ''.join('    <uses-permission android:name="android.permission.%s" />\n' % x
+                          for x in perms if 'android.permission.%s"' % x not in s)
+          ajout += '    <uses-feature android:name="android.hardware.location.gps" android:required="false" />\n'
+          ajout += '    <uses-feature android:name="android.hardware.camera" android:required="false" />\n'
+          s = s.replace('</manifest>', ajout + '</manifest>')
+          open(p, 'w', encoding='utf-8').write(s)
+          PY
+          npx cap sync android
+
+      - name: Signature fixe et numéro de version
+        working-directory: app/android
+        run: |
+          echo "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" | base64 -d > app/santerh-agent.keystore
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"1.${{ github.run_number }}\"/" app/build.gradle
+          cat >> app/build.gradle <<'GRADLE'
+
+          android {
+              signingConfigs {
+                  debug {
+                      storeFile file('santerh-agent.keystore')
+                      storePassword 'android'
+                      keyAlias 'androiddebugkey'
+                      keyPassword 'android'
+                  }
+              }
+          }
+          GRADLE
+
+      - name: Construire l'APK
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk ../../SanteRH-agent.apk
+
+      - name: Publier l'APK (Releases)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: SantéRH — APK n° ${{ github.run_number }}
+          body: APK de SantéRH avec pointage automatique des agents. Téléchargez SanteRH-agent.apk ci-dessous.
+          files: SanteRH-agent.apk
