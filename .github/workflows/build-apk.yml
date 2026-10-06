@@ -74,7 +74,7 @@ jobs:
           open(p, 'w', encoding='utf-8').write(s)
           PY
           npx cap sync android
-
+      - { name: Relance automatique du suivi, working-directory: app, run: "bash ../.github/workflows/relance-android.sh" }
       - name: Signature fixe et numéro de version
         working-directory: app/android
         run: |
