@@ -1,9 +1,9 @@
-const CACHE_NAME = "santerh-guinee-v1";
+const CACHE_NAME = "santerh-guinee-v2";
 const URLS_TO_CACHE = [
   "./SanteRH-Guinee.html",
   "./manifest.json",
-  "./icon-192-3.png",
-  "./icon-512-3.png"
+  "./icon-192-5.png",
+  "./icon-512-5.png"
 ];
 
 self.addEventListener("install", (event) => {
